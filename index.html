@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>蚵仔寮　LINE 官方帳號原型</title>
+<meta name="description" content="11th Design For Taiwan 學生工作坊原型，非梓官區漁會官方發布。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230E5C6B'/%3E%3Cpath d='M20 55c14-18 46-18 60 0-14 18-46 18-60 0z' fill='%23E8B10A'/%3E%3Ccircle cx='60' cy='55' r='5' fill='%230E5C6B'/%3E%3C/svg%3E">
+<style>
+:root{
+ --sea:#0E5C6B; --tide:#1B98B5; --roe:#E8B10A; --brick:#C24E24;
+ --cream:#F7F4EC; --ink:#1E2530; --ink2:#4A5563; --ink3:#7C8794; --line:#E2DED3;
+ --ok:#2E7D57; --warn:#B8860B;
+ --f:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--f);color:var(--ink);background:var(--cream);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* 非官方橫幅，任何一屏都看得到 */
+.disc{position:sticky;top:0;z-index:90;background:var(--brick);color:#fff;font-size:14px;
+ padding:7px 20px;text-align:center;letter-spacing:.02em}
+.disc b{font-weight:700}
+
+header{background:var(--sea);color:#fff;padding:34px 0 30px}
+header .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.logo{width:52px;height:52px;flex:none}
+header h1{font-size:27px;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+header p{color:#BFE0E7;font-size:16px;margin-top:3px}
+header .nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+header .nav a{color:#fff;text-decoration:none;font-size:15px;font-weight:700;
+ border:1px solid rgba(255,255,255,.34);border-radius:999px;padding:7px 15px}
+header .nav a:hover{background:rgba(255,255,255,.13)}
+
+.hero{position:relative}
+.hero img{width:100%;height:min(46vh,360px);object-fit:cover}
+.hero .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 20px 18px;
+ background:linear-gradient(transparent,rgba(14,92,107,.92));color:#fff}
+.hero .cap .wrap{padding:0}
+.hero .cap h2{font-size:25px;font-weight:800;line-height:1.34;max-width:760px}
+.hero .cap p{font-size:16px;color:#DCEAEE;margin-top:6px;max-width:700px}
+
+section{padding:44px 0}
+section.alt{background:#fff}
+h3.sh{font-size:23px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+p.sl{color:var(--ink2);font-size:16.5px;margin-bottom:20px;max-width:760px}
+
+/* 問題與定位 */
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.why .c{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:18px 19px}
+section.alt .why .c{background:var(--cream)}
+.why .n{font-size:31px;font-weight:800;color:var(--sea);line-height:1.05}
+.why .n u{text-decoration:none;font-size:16px}
+.why .t{font-size:16px;color:var(--ink2);line-height:1.5;margin-top:7px}
+.why .t b{color:var(--ink)}
+
+/* 手機模擬 */
+.demo{display:grid;grid-template-columns:340px 1fr;gap:34px;align-items:start}
+.phone{background:#111;border-radius:34px;padding:11px;box-shadow:0 22px 50px -24px rgba(0,0,0,.5)}
+.screen{background:#8CABC0;border-radius:25px;overflow:hidden;height:640px;display:flex;flex-direction:column}
+.pbar{background:var(--sea);color:#fff;padding:11px 14px;display:flex;align-items:center;gap:9px;flex:none}
+.pbar .av{width:31px;height:31px;border-radius:50%;background:var(--roe);flex:none;
+ display:flex;align-items:center;justify-content:center;font-size:16px}
+.pbar .nm{font-size:15.5px;font-weight:700;line-height:1.2}
+.pbar .nm span{display:block;font-size:12.5px;color:#BFE0E7;font-weight:400}
+.chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:83%;font-size:14.5px;line-height:1.6;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-break:break-word}
+.msg.bot{background:#fff;color:var(--ink);align-self:flex-start;border-bottom-left-radius:5px}
+.msg.me{background:#8DE055;color:#1a2b12;align-self:flex-end;border-bottom-right-radius:5px}
+.msg.sys{align-self:center;background:rgba(0,0,0,.28);color:#fff;font-size:12px;padding:4px 11px;border-radius:999px}
+.rich{flex:none;background:#fff;border-top:1px solid #dcdcdc;display:grid;grid-template-columns:repeat(3,1fr)}
+.rich button{border:0;border-right:1px solid #eee;border-bottom:1px solid #eee;background:#fff;
+ padding:11px 4px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px}
+.rich button:hover{background:#F2F7F8}
+.rich button svg{width:21px;height:21px}
+.rich button .l{font-size:12.5px;font-weight:700;color:var(--ink)}
+.rich button .s{font-size:10.5px;color:var(--ink3)}
+.inp{flex:none;display:flex;gap:7px;padding:9px;background:#fff;border-top:1px solid #eee}
+.inp input{flex:1;border:1px solid #ddd;border-radius:999px;padding:9px 14px;font-size:14.5px;font-family:inherit;outline:none}
+.inp input:focus{border-color:var(--tide)}
+.inp button{border:0;background:var(--sea);color:#fff;font-weight:700;border-radius:999px;padding:0 16px;cursor:pointer;font-family:inherit;font-size:14.5px}
+
+.side .box{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:17px 19px;margin-bottom:14px}
+section.alt .side .box{background:var(--cream)}
+.side .box h4{font-size:17.5px;font-weight:800;margin-bottom:7px}
+.side .box p{font-size:16px;color:var(--ink2);line-height:1.58}
+.side .box p+p{margin-top:7px}
+.side .box b{color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chips button{border:1px solid var(--tide);color:var(--sea);background:#fff;border-radius:999px;
+ padding:7px 13px;font-size:14.5px;font-family:inherit;cursor:pointer;font-weight:700}
+.chips button:hover{background:var(--tide);color:#fff}
+
+/* 推播 */
+.push{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.push .c{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+section.alt .push .c{background:var(--cream)}
+.push .h{background:var(--sea);color:#fff;padding:9px 15px;font-size:14.5px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.push .h span{color:#BFE0E7;font-weight:400;font-size:13px}
+.push .b{padding:15px 16px;font-size:15.5px;line-height:1.6;white-space:pre-wrap;color:var(--ink)}
+.push .w{padding:0 16px 15px;font-size:14.5px;color:var(--ink3);line-height:1.5;border-top:1px dashed var(--line);margin-top:4px;padding-top:11px}
+
+/* 圖片區 */
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.gal figure{border-radius:12px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.gal img{height:150px;width:100%;object-fit:cover}
+.gal figcaption{font-size:14.5px;color:var(--ink2);padding:9px 11px;line-height:1.45}
+.gal figcaption b{color:var(--ink);display:block}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center}
+.two img{border-radius:14px}
+
+.note{background:#FFF8E6;border:1px solid #F0DFA8;border-left:5px solid var(--roe);border-radius:0 12px 12px 0;padding:16px 19px;margin-top:18px}
+.note b{color:#8A6A00}
+.note p{font-size:16px;color:var(--ink2);line-height:1.6}
+.note p+p{margin-top:7px}
+
+footer{background:var(--ink);color:#B9C2CC;padding:30px 0;font-size:15px}
+footer .wrap{display:flex;gap:22px;flex-wrap:wrap;justify-content:space-between}
+footer b{color:#fff}
+footer a{color:#8FD4E4}
+
+@media(max-width:900px){
+ .demo{grid-template-columns:1fr}
+ .why,.push{grid-template-columns:1fr}
+ .gal{grid-template-columns:repeat(2,1fr)}
+ .two{grid-template-columns:1fr}
+ header .nav{width:100%;margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="disc"><b>學生工作坊原型</b>　11th Design For Taiwan　·　非梓官區漁會官方發布，僅供討論</div>
+
+<header>
+<div class="wrap">
+<svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
+<rect width="100" height="100" rx="24" fill="#0b4a56"/>
+<path d="M20 55c14-18 46-18 60 0-14 18-46 18-60 0z" fill="#E8B10A"/>
+<circle cx="60" cy="55" r="5" fill="#0b4a56"/>
+</svg>
+<div>
+<h1>蚵仔寮　一條走得完的路</h1>
+<p>LINE 官方帳號原型　·　資訊整合提案</p>
+</div>
+<nav class="nav">
+<a href="#why">為什麼是 LINE</a><a href="#demo">試著問問看</a><a href="#push">推播</a><a href="#field">現場</a><a href="#next">下一步</a>
+</nav>
+</div>
+</header>
+
+<div class="hero">
+<img src="img/hero-market.jpg" alt="蚵仔寮魚貨直銷中心外觀">
+<div class="cap"><div class="wrap">
+<h2>他們一年有六百六十萬人走過，卻沒有一條路把買魚、料理、帶走串起來</h2>
+<p>這個原型不是要再做一個網站。他們已經有官網、有電商、有四千一百八十位 LINE 好友。缺的是把這些接起來的那一層。</p>
+</div></div>
+</div>
+
+<section id="why">
+<div class="wrap">
+<h3 class="sh">為什麼是 LINE，不是再做一個網站</h3>
+<p class="sl">8/8 我們跟隨一組遊客全程 34 分鐘，也訪了漁會門市部。斷點全部發生在「當下」，那是聊天解得了、網站解不了的事。</p>
+<div class="why">
+<div class="c"><div class="n">4,180<u> 位</u></div><div class="t"><b>帳號已經存在，好友也已經在那裡。</b>@lxn4578t。不是要建一個 LINE，是那四千多人現在沒有人在用。</div></div>
+<div class="c"><div class="n">20<u> 分鐘</u></div><div class="t"><b>34 分鐘裡有 20 分鐘在貨比三家。</b>沒有人會在攤位前面打開官網，但他會看手機。</div></div>
+<div class="c"><div class="n">0<u> 組</u></div><div class="t"><b>觀察到的組別裡，沒有一組走到門市部。</b>寄冰、真空、宅配這些服務早就有了，只是沒人知道。</div></div>
+</div>
+<div class="note">
+<p><b>刻意不做的事：</b>不做金流、不做會員、不做客服對話、不碰他們既有系統的資料。</p>
+<p>漁會門市部說沒有人可以當小編。<b>所以第一版只做單向資訊與確定性回覆，沒有人回訊息比沒有帳號更傷。</b></p>
+</div>
+</div>
+</section>
+
+<section class="alt" id="demo">
+<div class="wrap">
+<h3 class="sh">試著問問看</h3>
+<p class="sl">下面是可以真的操作的模擬。問法照客人實際會講的方式寫，答不出來的它會說答不出來，不會亂猜。</p>
+<div class="demo">
+<div class="phone"><div class="screen">
+<div class="pbar">
+<span class="av">🐟</span>
+<span class="nm">蚵仔寮<span>原型　非官方</span></span>
+</div>
+<div class="chat" id="chat"></div>
+<div class="rich" id="rich"></div>
+<div class="inp">
+<input id="q" placeholder="打字問問看，例如：停哪裡" autocomplete="off">
+<button onclick="send()">送出</button>
+</div>
+</div></div>
+
+<div class="side">
+<div class="box">
+<h4>它怎麼決定要回什麼</h4>
+<p>沿用卡米克 LINE 機器人那套架構：<b>入口路由加知識庫加出口防線</b>。客人的問法是有限的，窮舉問法比窮舉機器人可能亂講的話可靠得多。</p>
+<p>每一條回覆背後都有來源，來自 8/7 的場域簡報、8/8 的門市部訪談、以及現場觀察。<b>查不到來源的一律不寫。</b></p>
+<p>出口防線會擋掉三種話：保證最便宜、假裝自己是漁會官方、承諾庫存一定有。</p>
+</div>
+<div class="box">
+<h4>直接點這些試</h4>
+<div class="chips" id="chips"></div>
+</div>
+<div class="box">
+<h4>答不出來的時候</h4>
+<p>它會直接說沒把握，然後給分部門的電話。<b>寧可承認不知道，也不要給一個聽起來很順但可能是錯的答案。</b>這是漁會的名字，不是我們的。</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="push">
+<div class="wrap">
+<h3 class="sh">三則推播，全部是資訊不是促銷</h3>
+<p class="sl">加好友的理由不是優惠，是資訊：來之前就知道今天值不值得跑一趟。一個人一天十分鐘就能發完。</p>
+<div class="push" id="pushes"></div>
+</div>
+</section>
+
+<section class="alt" id="field">
+<div class="wrap">
+<h3 class="sh">現場</h3>
+<p class="sl">8/8 拍的。這些照片同時也是提案的證據。</p>
+<div class="gal" id="gal"></div>
+
+<div class="two" style="margin-top:26px">
+<img src="img/floor2-a.jpg" alt="直銷中心二樓，空的">
+<div>
+<h3 class="sh" style="font-size:20px">二樓，十年</h3>
+<p class="sl" style="margin-bottom:12px">七千五百萬蓋的直銷中心，二樓啟用至今未開放。落地窗看出去就是整個漁港。</p>
+<p class="sl" style="margin-bottom:0">8/8 訪談才知道：<b>代客料理原本就設在這裡</b>。門市部的說法是「因為攤商間覺得我需要的空間比較大，喬不容易，所以又變成回到馬路上了，其實這很危險」。</p>
+</div>
+</div>
+</div>
+</section>
+
+<section id="next">
+<div class="wrap">
+<h3 class="sh">下一步</h3>
+<p class="sl">這個原型不需要任何人同意就能做出來。真正需要決定的東西，全部在漁會那一邊。</p>
+<div class="why">
+<div class="c"><div class="n" style="font-size:20px;line-height:1.4">今天就能修</div><div class="t">LINE 官方帳號的官網欄位目前指向一個內容已經漂移的站，等於把四千多位好友導到無關內容。<b>改指向，五分鐘，零成本。</b></div></div>
+<div class="c"><div class="n" style="font-size:20px;line-height:1.4">要一個人</div><div class="t">每天一則資訊推播，由哪一個部門的哪一位發。<b>一天十分鐘。</b></div></div>
+<div class="c"><div class="n" style="font-size:20px;line-height:1.4">要總幹事</div><div class="t">買魚、料理、包裝、帶走橫跨三個部門。依提案流程須經總幹事會簽，<b>這條路的主人只有他能指定。</b></div></div>
+</div>
+<div class="note">
+<p><b>我們交付的：</b>這支原型、LINE 圖文選單與推播文案規劃、一份 IA 與 PRD。</p>
+<p><b>我們不交付的：</b>正式上線的官網、LINE 官方帳號的實際設定、任何持續維護的承諾。<b>原型的壽命只到漁會決定要不要往下走為止。</b></p>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="wrap">
+<div><b>蚵仔寮　LINE 官方帳號原型</b><br>11th Design For Taiwan 學生工作坊　·　2026/08</div>
+<div>資料來源：8/7 漁會場域簡報、8/8 供銷部門市訪談、8/8 觀察組全程跟隨、公開資料查證<br>
+非梓官區漁會官方發布。漁會官方資訊請見 <a href="https://www.ktfa.com.tw/h/index?key=bb5m7">ktfa.com.tw</a>　線上訂購請見 <a href="https://www.fishermart.com.tw/zh-TW">fishermart.com.tw</a></div>
+</div>
+</footer>
+
+<script src="knowledge.js"></script>
+<script>
+const chat=document.getElementById('chat');
+function bubble(text,who){
+  const d=document.createElement('div'); d.className='msg '+who; d.textContent=text;
+  chat.appendChild(d); chat.scrollTop=chat.scrollHeight; return d;
+}
+function sys(t){ const d=document.createElement('div'); d.className='msg sys'; d.textContent=t; chat.appendChild(d); }
+function ask(q){
+  bubble(q,'me');
+  setTimeout(()=>{ const r=route(q); bubble(r.text,'bot'); },330);
+}
+function send(){
+  const i=document.getElementById('q'); const v=i.value.trim();
+  if(!v) return; i.value=''; ask(v);
+}
+document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter') send(); });
+
+const ICONS={
+ fish:'<path d="M3 12c4-6 12-6 16 0-4 6-12 6-16 0z" fill="none" stroke="#0E5C6B" stroke-width="1.8"/><circle cx="15" cy="12" r="1.3" fill="#0E5C6B"/>',
+ car:'<rect x="3" y="10" width="18" height="7" rx="2" fill="none" stroke="#0E5C6B" stroke-width="1.8"/><path d="M6 10l2-4h8l2 4" fill="none" stroke="#0E5C6B" stroke-width="1.8"/>',
+ map:'<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" fill="none" stroke="#0E5C6B" stroke-width="1.8"/>',
+ eye:'<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" fill="none" stroke="#0E5C6B" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="#0E5C6B" stroke-width="1.8"/>',
+ box:'<path d="M3 8l9-4 9 4v8l-9 4-9-4z" fill="none" stroke="#0E5C6B" stroke-width="1.8"/><path d="M3 8l9 4 9-4" fill="none" stroke="#0E5C6B" stroke-width="1.8"/>',
+ star:'<path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" fill="none" stroke="#0E5C6B" stroke-width="1.8"/>'
+};
+document.getElementById('rich').innerHTML = RICHMENU.map(m=>
+ `<button onclick="ask('${m.label}')"><svg viewBox="0 0 24 24">${ICONS[m.icon]}</svg><span class="l">${m.label}</span><span class="s">${m.sub}</span></button>`
+).join('');
+
+const TRY=['今天有什麼','停哪裡','怎麼挑才不會被騙','買完怎麼帶回家','有沒有適合小孩的','為什麼叫蚵仔寮','幾點來人比較少','可以刷卡嗎'];
+document.getElementById('chips').innerHTML = TRY.map(t=>`<button onclick="ask('${t}')">${t}</button>`).join('');
+
+document.getElementById('pushes').innerHTML = PUSHES.map(p=>
+ `<div class="c"><div class="h">${p.title}<span>${p.when}</span></div><div class="b">${p.body}</div><div class="w"><b>為什麼這樣寫：</b>${p.why}</div></div>`
+).join('');
+
+const GAL=[
+ ['auction.jpg','拍賣現場','中午 12:00 開拍，一天三千張拍賣單'],
+ ['stalls.jpg','一百多間攤商','招牌與陳列各異，整體造景難以促成'],
+ ['cook.jpg','代客料理','四間，現在設在馬路上'],
+ ['scale.jpg','公秤','覺得不足秤可以複秤'],
+ ['hut.jpg','艙仔寮','烏魚汛期時大家住在一起守海'],
+ ['kids.jpg','親子館','要再左轉一段路，紫色建築'],
+ ['harbor.jpg','港邊','現撈漁獲量高雄第一'],
+ ['floor2-b.jpg','二樓','空著十年，看得到整個漁港']
+];
+document.getElementById('gal').innerHTML = GAL.map(g=>
+ `<figure><img src="img/${g[0]}" alt="${g[1]}" loading="lazy"><figcaption><b>${g[1]}</b>${g[2]}</figcaption></figure>`
+).join('');
+
+bubble(GREET,'bot');
+sys('這是原型，不是漁會官方帳號');
+</script>
+</body>
+</html>
