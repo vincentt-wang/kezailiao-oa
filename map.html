@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<!-- 蚵仔寮　穿越尋寶之旅　互動地圖 · 2026-08-09
+     這一頁是給手機看的，從 LINE 點進來就能用。
+     底圖依現場看板「蚵仔寮好好玩」（高雄市政府海洋局）與我們 8/8、8/9 的現場觀察重畫。
+     位置為示意，不是比例尺。導航一律交給 Google 地圖。 -->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>蚵仔寮　穿越尋寶之旅</title>
+<meta property="og:title" content="蚵仔寮　穿越尋寶之旅">
+<meta property="og:description" content="八站走完蚵仔寮。每一站有故事、有下一步、有導航連結。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230E5C6B'/%3E%3Cpath d='M20 55c14-18 46-18 60 0-14 18-46 18-60 0z' fill='%23E8B10A'/%3E%3C/svg%3E">
+<style>
+:root{
+ --sea:#0E5C6B;--sea-d:#083A45;--tide:#1B98B5;--gold:#E8B10A;--brick:#C24E24;
+ --cream:#F7F4EC;--ink:#1E2530;--mid:#5b5870;--line:#E2DED3;--gn:#15803D;
+ --f:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--f);background:var(--cream);color:var(--ink);font-size:17px;line-height:1.68;
+ -webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+
+/* 頭 */
+header{background:linear-gradient(160deg,#0E5C6B,#08343E);color:#fff;padding:18px 18px 16px;position:relative;overflow:hidden}
+header .kick{font-size:16px;font-weight:800;letter-spacing:.16em;color:var(--gold)}
+header h1{font-size:clamp(24px,6.4vw,34px);font-weight:800;line-height:1.22;margin-top:5px;letter-spacing:-.01em}
+header p{font-size:16px;color:#BFE0E7;margin-top:7px;max-width:46ch}
+.disc{background:var(--brick);color:#fff;font-size:16px;padding:8px 18px;line-height:1.45}
+.disc b{font-weight:800}
+
+/* 分頁 */
+.tabs{display:flex;gap:8px;padding:12px 14px 0;background:var(--cream);position:sticky;top:0;z-index:30;
+ border-bottom:1px solid var(--line)}
+.tabs button{flex:1;border:1px solid var(--line);border-bottom:0;background:#fff;color:var(--mid);
+ font:800 16px var(--f);padding:11px 6px;border-radius:12px 12px 0 0;cursor:pointer}
+.tabs button.on{background:var(--sea);color:#fff;border-color:var(--sea)}
+
+.pane{display:none;padding:14px}
+.pane.on{display:block}
+
+/* 地圖容器：可拖曳可縮放 */
+.mapbox{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+ touch-action:none}
+.mapbox svg{display:block;width:100%;height:auto;cursor:grab}
+.mapbox svg.drag{cursor:grabbing}
+.zoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px;z-index:5}
+.zoom button{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:#fff;
+ font:800 21px var(--f);color:var(--sea);cursor:pointer;box-shadow:0 3px 10px -4px rgba(0,0,0,.3)}
+.hintbar{font-size:16px;color:var(--mid);padding:9px 4px 0;line-height:1.5}
+
+/* 站點 */
+.pin{cursor:pointer}
+.pin circle.h{transition:r .12s}
+.pin.on circle.h{stroke:#1E2530;stroke-width:4}
+.pin.dim{opacity:.25}
+
+/* 故事進度 */
+.story{display:flex;gap:7px;overflow-x:auto;padding:12px 2px 4px;scrollbar-width:none}
+.story::-webkit-scrollbar{display:none}
+.story button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;
+ font:800 16px var(--f);color:var(--mid);cursor:pointer;white-space:nowrap}
+.story button.on{background:var(--gold);color:#3A2A00;border-color:var(--gold)}
+.story button.done{border-color:var(--gn);color:var(--gn)}
+
+/* 卡 */
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px 18px;margin-top:14px}
+.card .no{display:inline-block;font:800 16px/1 var(--f);letter-spacing:.1em;color:#fff;background:var(--sea);
+ border-radius:7px;padding:6px 11px}
+.card .no.side{background:var(--gold);color:#3A2A00}
+.card h3{font-size:23px;font-weight:800;margin:9px 0 2px;line-height:1.3}
+.card .sub{font-size:16px;color:var(--mid)}
+.card p{font-size:16.5px;line-height:1.65;margin-top:11px}
+.card .story2{background:#FFF8E6;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;
+ padding:11px 13px;margin-top:12px;font-size:16.5px;line-height:1.62}
+.card .story2 b{color:#8A6A00}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.acts a,.acts button{border:0;border-radius:10px;padding:11px 15px;font:800 16px var(--f);cursor:pointer;
+ text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.acts .go{background:var(--sea);color:#fff}
+.acts .next{background:var(--gold);color:#3A2A00}
+.acts .ghost{background:#fff;color:var(--sea);border:1px solid var(--line)}
+.warn{background:#FDF7E0;border:1px solid #EFDFA4;border-left:5px solid #A67C00;border-radius:0 11px 11px 0;
+ padding:11px 14px;margin-top:12px;font-size:16px;line-height:1.55}
+.warn b{color:#8A6A00}
+
+/* 平面圖圖例 */
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-top:11px;font-size:16px;color:var(--mid)}
+.leg span{display:flex;align-items:center;gap:7px}
+.leg i{width:15px;height:15px;border-radius:4px;display:inline-block}
+
+footer{padding:22px 18px 40px;color:var(--mid);font-size:16px;line-height:1.6;border-top:1px solid var(--line);margin-top:20px}
+footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kick">蚵仔寮</div>
+  <h1>穿越尋寶之旅</h1>
+  <p>八站走完一圈。每一站有一件這裡的人才知道的事，走到最後一站才算完成。</p>
+</header>
+<div class="disc"><b>學生工作坊原型，非梓官區漁會官方發布。</b>位置為示意，導航請按卡片上的按鈕開 Google 地圖。</div>
+
+<div class="tabs">
+  <button data-p="area" class="on">全區地圖</button>
+  <button data-p="hall">魚市場平面圖</button>
+</div>
+
+<!-- ══════ 全區 ══════ -->
+<div class="pane on" id="pane-area">
+  <div class="story" id="story"></div>
+
+  <div class="mapbox">
+    <svg id="svgArea" viewBox="0 0 1000 660" role="img" aria-label="蚵仔寮全區示意地圖">
+      <g id="areaG">
+        <rect x="-400" y="-300" width="1800" height="1300" fill="#F7F4EC"/>
+        <!-- 海 -->
+        <path d="M-400 -300 H1400 V150 C1180 176 1020 140 900 158 C760 178 640 148 500 170 C360 192 160 158 -400 178 Z" fill="#BFE3EC"/>
+        <rect x="470" y="150" width="180" height="118" fill="#BFE3EC"/>
+        <text x="820" y="72" font-size="21" font-weight="700" fill="#3E7A88">台灣海峽</text>
+        <text x="588" y="236" font-size="18" font-weight="700" fill="#3E7A88">蚵仔寮漁港</text>
+        <!-- 溪與綠地 -->
+        <path d="M100 130 C124 262 96 404 122 640" stroke="#CFE7EF" stroke-width="26" fill="none" stroke-linecap="round"/>
+        <text x="64" y="336" font-size="17" font-weight="700" fill="#5E93A0" transform="rotate(-84 64 336)">典寶溪</text>
+        <rect x="34" y="486" width="150" height="126" rx="16" fill="#DCE9CE"/>
+        <rect x="706" y="440" width="264" height="172" rx="16" fill="#DCE9CE"/>
+        <!-- 街廓 -->
+        <g stroke="#EAE4D6" stroke-width="17" stroke-linecap="round">
+          <path d="M176 300 H960"/><path d="M176 382 H960"/><path d="M176 472 H706"/>
+          <path d="M306 254 V608"/><path d="M426 254 V608"/><path d="M546 262 V608"/><path d="M666 262 V608"/>
+        </g>
+        <g font-size="16" fill="#A79E88" font-weight="700">
+          <text x="184" y="295">漁港二路</text><text x="184" y="377">漁港一路</text><text x="184" y="467">中正路</text>
+          <text x="312" y="620">港七街</text><text x="432" y="620">港九街</text><text x="552" y="620">通安路</text><text x="672" y="620">廣澤路</text>
+        </g>
+        <path d="M-400 632 H1400" stroke="#EFD9AC" stroke-width="22"/>
+        <text x="24" y="638" font-size="16" font-weight="700" fill="#8A6A00">往楠梓區</text>
+        <text x="880" y="638" font-size="16" font-weight="700" fill="#8A6A00">往彌陀區</text>
+        <text x="470" y="638" font-size="16" font-weight="800" fill="#8A6A00">台 17 線</text>
+        <!-- 路線 -->
+        <g id="routeG" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="pinsArea"></g>
+      </g>
+    </svg>
+    <div class="zoom">
+      <button onclick="zoomBy(1.35)" aria-label="放大">＋</button>
+      <button onclick="zoomBy(1/1.35)" aria-label="縮小">－</button>
+      <button onclick="resetZoom()" aria-label="回到全圖" style="font-size:16px">全圖</button>
+    </div>
+  </div>
+  <p class="hintbar">用兩指縮放，或按右下角。<b>點編號看那一站有什麼。</b></p>
+  <div id="cardArea"></div>
+</div>
+
+<!-- ══════ 魚市場平面圖 ══════ -->
+<div class="pane" id="pane-hall">
+  <div class="mapbox">
+    <svg id="svgHall" viewBox="0 0 1000 620" role="img" aria-label="觀光魚市場平面示意圖">
+      <g id="hallG">
+        <rect x="-400" y="-300" width="1800" height="1300" fill="#F7F4EC"/>
+        <!-- 建物外框 -->
+        <rect x="60" y="70" width="880" height="420" rx="14" fill="#fff" stroke="#D8D2C2" stroke-width="4"/>
+        <!-- 中央走道 -->
+        <rect x="60" y="258" width="880" height="46" fill="#EFEADC"/>
+        <text x="500" y="288" text-anchor="middle" font-size="17" font-weight="700" fill="#A79E88">中央走道</text>
+        <!-- 上排：生食 -->
+        <rect x="72" y="86" width="856" height="164" rx="9" fill="#E7F2F5"/>
+        <text x="92" y="112" font-size="19" font-weight="800" fill="#0E5C6B">生食區　現撈漁獲攤位</text>
+        <g id="stallsTop"></g>
+        <!-- 下排：熟食 -->
+        <rect x="72" y="312" width="560" height="164" rx="9" fill="#FBEFE3"/>
+        <text x="92" y="338" font-size="19" font-weight="800" fill="#C24E24">熟食區　炸物與小吃</text>
+        <g id="stallsBot"></g>
+        <!-- 右下：其他 -->
+        <rect x="646" y="312" width="282" height="76" rx="9" fill="#EDE7F8"/>
+        <text x="660" y="340" font-size="17" font-weight="800" fill="#6D3FD0">代客料理　四間</text>
+        <text x="660" y="364" font-size="16" fill="#6a6a7a">買好的拿過去請店家煮</text>
+        <rect x="646" y="398" width="134" height="78" rx="9" fill="#E7F5EC"/>
+        <text x="660" y="424" font-size="17" font-weight="800" fill="#15803D">門市部</text>
+        <text x="660" y="446" font-size="16" fill="#6a7a70">寄冰真空宅配</text>
+        <text x="660" y="466" font-size="16" fill="#6a7a70">禮盒與烏魚子</text>
+        <rect x="794" y="398" width="134" height="78" rx="9" fill="#F0F0F2"/>
+        <text x="808" y="424" font-size="17" font-weight="800" fill="#4A5563">全家</text>
+        <text x="808" y="446" font-size="16" fill="#7a7a84">便利商店</text>
+        <!-- 拍賣 -->
+        <rect x="60" y="512" width="380" height="72" rx="12" fill="#E7F2F5" stroke="#B7D8E0" stroke-dasharray="7 6"/>
+        <text x="80" y="540" font-size="18" font-weight="800" fill="#0E5C6B">拍賣台　魚市場大樓二樓</text>
+        <text x="80" y="564" font-size="16" fill="#5f7e88">中午 12:00 開拍，二樓看得到</text>
+        <!-- 遊客服務中心 -->
+        <rect x="460" y="512" width="480" height="72" rx="12" fill="#FDF1E6" stroke="#E8C39B" stroke-dasharray="7 6"/>
+        <text x="480" y="540" font-size="18" font-weight="800" fill="#A05A18">遊客服務中心　標示還在</text>
+        <text x="480" y="564" font-size="16" fill="#8A6A45">8/9 走進去看，裡面堆的是貨，沒有在運作</text>
+        <g id="pinsHall"></g>
+      </g>
+    </svg>
+    <div class="zoom">
+      <button onclick="zoomBy(1.35,'hall')" aria-label="放大">＋</button>
+      <button onclick="zoomBy(1/1.35,'hall')" aria-label="縮小">－</button>
+      <button onclick="resetZoom('hall')" aria-label="回到全圖" style="font-size:16px">全圖</button>
+    </div>
+  </div>
+  <div class="leg">
+    <span><i style="background:#E7F2F5"></i>生食區</span>
+    <span><i style="background:#FBEFE3"></i>熟食區</span>
+    <span><i style="background:#EDE7F8"></i>代客料理</span>
+    <span><i style="background:#E7F5EC"></i>門市部</span>
+    <span><i style="background:#FDF1E6;border:1px dashed #E8C39B"></i>沒在運作</span>
+  </div>
+  <div class="card">
+    <span class="no">攤位編號</span>
+    <h3>編號是有的，只是抬頭才看得到</h3>
+    <p>每一攤的招牌右側都印著圓圈裡的號碼，我們在現場拍到 <b>14、51、52、53</b>。攤商也有自己的品牌名，例如 <b>Lu 媽水產</b>，招牌上還有英文。</p>
+    <div class="warn"><b>問題不在沒有編號，在於它印在招牌高處。</b>走道上人一多就被擋住，站在攤位前反而看不到自己在幾號。跟人約「我在 52 號」這件事，現在做不到。</div>
+    <p style="margin-top:12px"><b>完整的攤位對照表我們沒有拿到。</b>上面的號碼是照片上讀得到的，不是全部。要做成真正可查的地圖，需要漁會提供攤位清單。</p>
+  </div>
+</div>
+
+<footer>
+  <b>資料來源</b>　現場看板「蚵仔寮好好玩」（高雄市政府海洋局）、D4T 工作坊導覽單、2026/08/08 與 08/09 現場觀察與訪談。<br>
+  <b>位置為示意，不是比例尺。</b>導航一律用卡片上的 Google 地圖按鈕。標示「還沒確認」的站點代表我們沒有到過現場，內容以現場公告為準。<br>
+  學生工作坊原型，非梓官區漁會官方發布。
+</footer>
+
+<script>
+/* ══ 站點資料。verified=false 的代表我們沒到過現場，卡片會標出來 ══ */
+const G = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+
+const STOPS = [
+ {id:"01",x:236,y:346,t:"停車場",role:"新手村",v:true,
+  sub:"旅程從這裡開始",
+  d:"兩個選擇：免費停車場過牌坊直直開到底，遊覽車也停得下，走進來 5 到 10 分鐘；付費停車場比較近。收費以現場告示為準。",
+  story:"這一站是新手村。<b>把車停好，就等於拿到入場券。</b>假日 11:50 之後開始排隊，早一點到會省下很多力氣。",
+  warn:"停車收費我們聽到兩種說法，所以不寫金額，以現場告示為準。",
+  map:G("高雄市梓官區漁港二路32號 蚵仔寮魚貨直銷中心"), next:"02"},
+
+ {id:"02",x:356,y:346,t:"生食區",role:"第一件寶物",v:true,
+  sub:"現撈漁獲攤位，一百多間",
+  d:"看三件事就好：眼睛清澈不混濁、鰓是鮮紅色、攤位有沒有一直在補冰。同一種魚各攤價差通常不大，先挑到對的再問價。",
+  story:"<b>這裡叫蚵仔寮，但沒有產蚵仔。</b>要找的是現撈仔。現場有公秤可以複秤，覺得不足秤可以洽管理站。",
+  map:G("蚵仔寮觀光魚市場"), next:"03"},
+
+ {id:"03",x:476,y:272,t:"拍賣看台",role:"看門道",v:true,
+  sub:"魚市場大樓二樓，中午 12:00 開拍",
+  d:"喊價的人叫糶手，就是主持拍賣的人。出價的是承銷人，要有資格才進得去，所以一般民眾看歸看，買還是跟攤位買。",
+  story:"<b>這是整趟裡唯一看得到「魚怎麼變成價格」的地方。</b>看拍賣不用收費，站二樓不會擋到人。",
+  map:G("蚵仔寮魚市場大樓"), next:"04"},
+
+ {id:"04",x:606,y:322,t:"代客料理",role:"開火",v:true,
+  sub:"現場四間",
+  d:"買好的魚貨拿過去請店家煮，收費與作法各家自己訂，拿過去先問清楚再放。假日中午前後會等比較久。",
+  story:"<b>直銷中心二樓本來就是規劃給代客料理的位置。</b>後來因為空間喬不攏，變成回到馬路上。等餐那十五分鐘，是整趟裡唯一有空又走不遠的時間。",
+  map:G("蚵仔寮 代客料理"), next:"05"},
+
+ {id:"05",x:476,y:402,t:"熟食區",role:"補給",v:true,
+  sub:"炸物與小吃，不用等",
+  d:"不想等代客料理就來這裡。這一段是唯一不用排隊的選項。",
+  story:"我們 8/8 跟到的那一組，<b>最後是在場域外面買了手持小吃才離開</b>，沒有走到最後一站。",
+  map:G("蚵仔寮觀光魚市場 熟食區"), next:"06"},
+
+ {id:"06",x:666,y:432,t:"門市部",role:"寶物出口",v:true,
+  sub:"戀戀蚵仔寮，最後一站",
+  d:"寄冰、真空、宅配、禮盒四種帶走方式都在這裡辦。買完先冰在這裡，逛完再拿。",
+  story:"<b>走到這裡才算走完。</b>8/8 觀察到的組別中沒有一組走到這裡，而寄冰、真空、宅配、禮盒四種服務全部在這一站。",
+  map:G("戀戀蚵仔寮 梓官區漁會"), next:"07"},
+
+ {id:"07",x:796,y:342,t:"漁港路公園",role:"喘口氣",v:false,
+  sub:"官方看板上有，我們沒到過",
+  d:"看板標在漁港旁邊。遊具、遮蔭、廁所我們都沒有確認過。",
+  story:"帶小孩的話這一站值得看看。<b>但我們沒去過，內容以現場為準。</b>",
+  map:G("蚵仔寮漁港 公園"), next:"08"},
+
+ {id:"08",x:876,y:250,t:"海洋教室與親子館",role:"最後一站",v:false,
+  sub:"導覽單上有，開放時間未確認",
+  d:"D4T 導覽單標在港邊。8/8 訪談提到「親子館在另一個方向，要再左轉一段」，開放時間與是否收費都沒問到。",
+  story:"<b>這一站是整條路線最值得補的一格</b>，因為帶小孩的家庭正是最需要一條走得完的路的人。",
+  map:G("蚵仔寮 親子館"), next:null}
+];
+
+/* 順路但不在主線上的 */
+const SIDE = [
+ {id:"A",x:452,y:120,t:"蚵仔寮南沙灘",v:false,sub:"官方看板上有",
+  d:"看板標在港區西北側。能不能下水、有沒有救生員、怎麼走過去，我們都沒有確認。",map:G("蚵仔寮 南沙灘")},
+ {id:"B",x:242,y:208,t:"曬網場",v:false,sub:"官方看板上有",
+  d:"漁村最有畫面的場景之一，但它同時是作業區，能不能靠近要問過才知道。",map:G("蚵仔寮 曬網場")},
+ {id:"C",x:706,y:180,t:"通安宮",v:false,sub:"廟",
+  d:"8/7 場域簡報提過，兩間廟才是這裡真正的聚會節點。參拜時間我們沒有查證。",map:G("蚵仔寮通安宮")},
+ {id:"D",x:786,y:206,t:"蚵仔寮朝天宮",v:false,sub:"廟",
+  d:"同上。祭典日期沒有查證。",map:G("蚵仔寮朝天宮")},
+ {id:"E",x:566,y:492,t:"保安宮",v:false,sub:"廟",
+  d:"官方看板上標的第三間廟。",map:G("蚵仔寮 保安宮")},
+ {id:"F",x:118,y:540,t:"援中港濕地公園",v:false,sub:"官方看板上有",
+  d:"看板標在西南邊，過典寶溪。距離與交通方式未確認，看起來不是走得到的距離。",map:G("援中港濕地公園")},
+ {id:"G",x:346,y:434,t:"蚵仔寮郵局",v:true,sub:"生活機能",
+  d:"官方看板上有標。",map:G("蚵仔寮郵局")},
+ {id:"H",x:806,y:462,t:"梓官區農會",v:true,sub:"生活機能",
+  d:"官方看板上有標。梓官是農漁雙料，農會與漁會都在這裡。",map:G("梓官區農會")}
+];
+
+const ALL = [...STOPS, ...SIDE];
+const byId = Object.fromEntries(ALL.map(s => [s.id, s]));
+
+/* ══ 畫站點 ══ */
+function pinSvg(s, main){
+  const col = main ? (s.v ? "#0E5C6B" : "#E8B10A") : "#7C8794";
+  const r = main ? 21 : 16;
+  const fs = main ? 16 : 15;
+  return `<g class="pin" data-id="${s.id}" tabindex="0" role="button" aria-label="${s.t}">
+    <circle class="h" cx="${s.x}" cy="${s.y}" r="${r}" fill="${col}" stroke="#fff" stroke-width="3"/>
+    <text x="${s.x}" y="${s.y+6}" text-anchor="middle" font-size="${fs}" font-weight="800"
+      fill="${(main&&!s.v)?'#3A2A00':'#fff'}">${s.id}</text>
+    <text x="${s.x}" y="${s.y+(main?40:34)}" text-anchor="middle" font-size="16" font-weight="700"
+      fill="#3C4657" paint-order="stroke" stroke="#F7F4EC" stroke-width="4">${s.t}</text>
+  </g>`;
+}
+document.getElementById('pinsArea').innerHTML =
+  SIDE.map(s => pinSvg(s,false)).join('') + STOPS.map(s => pinSvg(s,true)).join('');
+
+/* 主線的路 */
+const P = Object.fromEntries(STOPS.map(s => [s.id, [s.x, s.y]]));
+document.getElementById('routeG').innerHTML =
+  '<path d="M' + STOPS.map(s => `${s.x} ${s.y}`).join(' L') + '" stroke="#E8B10A" stroke-width="8" stroke-dasharray="1 16" stroke-linecap="round"/>';
+
+/* ══ 故事進度條 ══ */
+const doneKey = 'kzl_map_done';
+let done = (() => { try { return JSON.parse(localStorage.getItem(doneKey) || '[]'); } catch(e){ return []; } })();
+function renderStory(){
+  document.getElementById('story').innerHTML = STOPS.map(s =>
+    `<button data-go="${s.id}" class="${done.includes(s.id)?'done':''}">${s.id}　${s.role}</button>`).join('');
+  document.querySelectorAll('#story button').forEach(b => b.onclick = () => show(b.dataset.go));
+}
+renderStory();
+
+/* ══ 卡片 ══ */
+let cur = null, first = true;
+function show(id){
+  const s = byId[id]; if(!s) return;
+  cur = id;
+  document.querySelectorAll('#pinsArea .pin').forEach(g => g.classList.toggle('on', g.dataset.id === id));
+  document.querySelectorAll('#story button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  const main = STOPS.some(x => x.id === id);
+  const nx = s.next ? byId[s.next] : null;
+  document.getElementById('cardArea').innerHTML =
+    `<div class="card">
+      <span class="no${main && !s.v ? ' side' : ''}">${s.id}${s.role ? '　' + s.role : ''}</span>
+      <h3>${s.t}</h3>
+      <div class="sub">${s.sub || ''}</div>
+      <p>${s.d}</p>
+      ${s.story ? `<div class="story2">${s.story}</div>` : ''}
+      ${!s.v ? '<div class="warn"><b>還沒確認。</b>這一站在官方看板或導覽單上有，但我們沒有到過現場，開放時間與內容以現場為準。</div>' : ''}
+      ${s.warn ? `<div class="warn">${s.warn}</div>` : ''}
+      <div class="acts">
+        <a class="go" href="${s.map}" target="_blank" rel="noopener">用 Google 地圖導航</a>
+        ${nx ? `<button class="next" onclick="mark('${s.id}');show('${nx.id}')">走完了，下一站 ${nx.id}</button>` : ''}
+        ${!nx && main ? `<button class="next" onclick="mark('${s.id}')">完成整趟</button>` : ''}
+        <button class="ghost" onclick="resetZoom()">回到全圖</button>
+      </div>
+    </div>`;
+  if(!first) document.getElementById('cardArea').scrollIntoView({behavior:'smooth', block:'nearest'});
+  first=false;
+}
+function mark(id){
+  if(!done.includes(id)) done.push(id);
+  try{ localStorage.setItem(doneKey, JSON.stringify(done)); }catch(e){}
+  renderStory();
+  document.querySelectorAll('#story button').forEach(b => b.classList.toggle('on', b.dataset.go === cur));
+}
+document.querySelectorAll('#pinsArea .pin').forEach(g => {
+  const go = () => show(g.dataset.id);
+  g.addEventListener('click', go);
+  g.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
+});
+
+/* ══ 魚市場攤位帶 ══ */
+const TOP = ["14","…","51","52","53","…"];
+document.getElementById('stallsTop').innerHTML = TOP.map((n,i)=>{
+  const x = 96 + i*138;
+  return `<g><rect x="${x}" y="128" width="118" height="106" rx="8" fill="#fff" stroke="#C7DEE5" stroke-width="2"/>
+   <circle cx="${x+59}" cy="163" r="19" fill="#0E5C6B"/>
+   <text x="${x+59}" y="170" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">${n}</text>
+   <text x="${x+59}" y="205" text-anchor="middle" font-size="16" fill="#5f7e88">${n==="…"?"其餘未取得":"攤位"}</text></g>`;
+}).join('');
+document.getElementById('stallsBot').innerHTML = ["","","",""].map((_,i)=>{
+  const x = 96 + i*138;
+  return `<g><rect x="${x}" y="352" width="118" height="106" rx="8" fill="#fff" stroke="#EED2B8" stroke-width="2"/>
+   <text x="${x+59}" y="412" text-anchor="middle" font-size="16" fill="#9a7a5f">小吃攤</text></g>`;
+}).join('');
+
+/* ══ 縮放與拖曳 ══ */
+const V = {
+  area: {el: document.getElementById('svgArea'), g: document.getElementById('areaG'), k:1, x:0, y:0},
+  hall: {el: document.getElementById('svgHall'), g: document.getElementById('hallG'), k:1, x:0, y:0}
+};
+function apply(v){ v.g.setAttribute('transform', `translate(${v.x} ${v.y}) scale(${v.k})`); }
+function zoomBy(f, which='area'){
+  const v = V[which];
+  const nk = Math.min(4, Math.max(1, v.k*f));
+  const box = v.el.viewBox.baseVal;
+  const cx = box.width/2, cy = box.height/2;
+  v.x = cx - (cx - v.x) * (nk/v.k);
+  v.y = cy - (cy - v.y) * (nk/v.k);
+  v.k = nk; clampPan(v, which); apply(v);
+}
+function resetZoom(which='area'){ const v=V[which]; v.k=1; v.x=0; v.y=0; apply(v); }
+function clampPan(v, which){
+  const box = V[which].el.viewBox.baseVal;
+  const maxX = box.width*(v.k-1), maxY = box.height*(v.k-1);
+  v.x = Math.min(0, Math.max(-maxX, v.x));
+  v.y = Math.min(0, Math.max(-maxY, v.y));
+}
+Object.entries(V).forEach(([name, v]) => {
+  let drag=false, sx=0, sy=0, ox=0, oy=0, pinch=null;
+  const pt = e => { const r=v.el.getBoundingClientRect(); const b=v.el.viewBox.baseVal;
+    return {x:(e.clientX-r.left)/r.width*b.width, y:(e.clientY-r.top)/r.height*b.height}; };
+  v.el.addEventListener('pointerdown', e => {
+    if(e.target.closest('.pin')) return;
+    drag=true; v.el.classList.add('drag'); v.el.setPointerCapture(e.pointerId);
+    const p=pt(e); sx=p.x; sy=p.y; ox=v.x; oy=v.y;
+  });
+  v.el.addEventListener('pointermove', e => {
+    if(!drag) return; const p=pt(e);
+    v.x = ox + (p.x - sx)*v.k; v.y = oy + (p.y - sy)*v.k;
+    clampPan(v, name); apply(v);
+  });
+  const end = e => { drag=false; v.el.classList.remove('drag'); };
+  v.el.addEventListener('pointerup', end);
+  v.el.addEventListener('pointercancel', end);
+  v.el.addEventListener('wheel', e => { e.preventDefault(); zoomBy(e.deltaY<0?1.12:1/1.12, name); }, {passive:false});
+  // 兩指縮放
+  let d0=null;
+  v.el.addEventListener('touchstart', e => { if(e.touches.length===2){
+    d0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); } }, {passive:true});
+  v.el.addEventListener('touchmove', e => { if(e.touches.length===2 && d0){
+    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    if(Math.abs(d-d0)>6){ zoomBy(d>d0?1.06:1/1.06, name); d0=d; } } }, {passive:true});
+  v.el.addEventListener('touchend', () => { d0=null; }, {passive:true});
+});
+
+/* ══ 分頁 ══ */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + b.dataset.p));
+});
+
+show('01');
+</script>
+</body></html>
