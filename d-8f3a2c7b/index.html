@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+
+<!-- 蚵仔寮 Pitch 簡報 v2 · 全螢幕逐步揭示 · 2026-08-09
+     設計約束：三色 CIS（深海青／烏魚金／米白），一次一個重點其餘淡化，每頁都有動畫，無選單。
+     操作：方向鍵、空白鍵、滑鼠滾輪、右下按鈕，全部走 findNextRevealable()，不另外攔截。 -->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="noindex,nofollow" name="robots"/>
+<title>蚵仔寮　把斷掉的那條路接起來</title>
+<link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230B4552'/%3E%3Cpath d='M20 55c14-18 46-18 60 0-14 18-46 18-60 0z' fill='%23E8B10A'/%3E%3C/svg%3E" rel="icon"/>
+<style>
+/* ═══ 色彩：只有三個，其餘都是這三個的透明度 ═══ */
+:root{
+  --sea:#0B4552;        /* 深海青　底 */
+  --sea-d:#062A33;      /* 深海青　更深 */
+  --gold:#E8B10A;       /* 烏魚金　唯一強調色 */
+  --cream:#F4F1E8;      /* 米白　　文字 */
+  --dim:rgba(244,241,232,.52);
+  --faint:rgba(244,241,232,.30);
+  --hair:rgba(244,241,232,.14);
+  --line-green:#06C755; /* 例外元素：只用在 LINE 介面模擬的外框 */
+  --f:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif;
+  --e:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:18px}
+body{font-family:var(--f);background:var(--sea-d);color:var(--cream);overflow:hidden;
+ width:100vw;height:100vh;-webkit-font-smoothing:antialiased}
+
+#deck{position:fixed;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+#deck::-webkit-scrollbar{display:none}
+.sl{height:100vh;width:100%;scroll-snap-align:start;position:relative;overflow:hidden;
+ display:flex;flex-direction:column;justify-content:center;
+ padding:clamp(38px,5vh,64px) clamp(40px,6vw,96px) 82px;
+ background:radial-gradient(120% 90% at 15% 0%,#0E5462 0%,var(--sea) 42%,var(--sea-d) 100%)}
+.sl.photo{padding:0;justify-content:flex-end}
+
+/* ═══ 版面元件 ═══ */
+.kick{font-size:clamp(16px,1.1vw,17.5px);font-weight:800;letter-spacing:.22em;color:var(--gold)}
+h1{font-size:clamp(34px,min(5.2vw,8.6vh),76px);font-weight:800;line-height:1.1;letter-spacing:-.025em}
+h2{font-size:clamp(26px,min(3.4vw,6vh),50px);font-weight:800;line-height:1.18;letter-spacing:-.02em;margin-top:12px}
+h3{font-size:clamp(20px,1.8vw,28px);font-weight:800;line-height:1.3}
+.lead{font-size:clamp(17px,min(1.35vw,2.4vh),23px);line-height:1.58;color:var(--dim);max-width:60ch;margin-top:clamp(10px,1.8vh,18px)}
+.note{font-size:16px;line-height:1.5;color:var(--faint);margin-top:14px}
+b,strong{font-weight:800;color:#fff}
+.g{color:var(--gold)}
+
+/* ═══ 逐步揭示：未揭示 → 隱形；揭示 → 進場；被下一個蓋過 → 淡化 ═══ */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .5s var(--e),transform .5s var(--e),filter .5s var(--e)}
+.rv.on{opacity:1;transform:none}
+.rv.past{opacity:.26;filter:saturate(.35)}
+.rv.keep.past{opacity:.62;filter:none}
+
+/* 數字 */
+.figs{display:flex;gap:clamp(24px,4vw,68px);flex-wrap:wrap;margin-top:clamp(20px,3vh,38px)}
+.fig .v{font-size:clamp(46px,min(7vw,12vh),98px);font-weight:800;line-height:.94;letter-spacing:-.04em;color:var(--gold)}
+.fig .v u{text-decoration:none;font-size:.34em;letter-spacing:0;margin-left:4px}
+.fig .l{font-size:clamp(16px,1.1vw,18px);line-height:1.5;color:var(--dim);margin-top:12px;max-width:22ch}
+.fig.mute .v{color:var(--cream)}
+
+/* 照片 */
+.full{position:absolute;inset:0;z-index:0;overflow:hidden}
+.full img{width:100%;height:100%;object-fit:cover;object-position:center 58%;transform:scale(1.06);transition:transform 8s linear,opacity 1.2s var(--e)}
+.sl.is-on .full img{transform:scale(1)}
+.full::after{content:"";position:absolute;inset:0;
+ background:linear-gradient(180deg,rgba(6,42,51,.42) 0%,rgba(6,42,51,.55) 42%,rgba(6,42,51,.94) 100%)}
+.onpic{position:relative;z-index:2;padding:clamp(30px,4vh,56px) clamp(40px,6vw,96px) 78px}
+
+.shots{display:grid;gap:clamp(12px,1.4vw,20px);margin-top:clamp(18px,2.6vh,32px)}
+.shots.c2{grid-template-columns:1fr 1fr}
+.shots.c3{grid-template-columns:repeat(3,1fr)}
+.shots.c4{grid-template-columns:repeat(4,1fr)}
+.shot{position:relative;border-radius:14px;overflow:hidden;background:rgba(0,0,0,.25)}
+.shot img{width:100%;height:clamp(170px,26vh,272px);object-fit:cover;object-position:center 55%;display:block}
+.shot .cap{position:absolute;left:0;right:0;bottom:0;padding:44px 15px 13px;
+ background:linear-gradient(transparent,rgba(4,28,34,.62) 34%,rgba(4,28,34,.96) 100%);font-size:17px;font-weight:800;line-height:1.35;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.shot .cap em{display:block;font-style:normal;font-size:16px;font-weight:400;color:rgba(244,241,232,.82);margin-top:4px}
+.shot.tall img{height:clamp(240px,44vh,430px)}
+
+/* 條列 */
+.pts{margin-top:clamp(16px,2.4vh,30px);display:flex;flex-direction:column;gap:clamp(10px,1.6vh,18px)}
+.pt{display:flex;gap:16px;align-items:flex-start;font-size:clamp(17px,1.4vw,24px);line-height:1.5}
+.pt .no{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);color:var(--gold);
+ font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.pt .no.solid{background:var(--gold);color:var(--sea-d)}
+
+/* 引言 */
+.quote{border-left:5px solid var(--gold);padding:6px 0 6px 24px;margin-top:clamp(18px,2.6vh,32px);max-width:52ch}
+.quote p{font-size:clamp(21px,2.1vw,34px);font-weight:800;line-height:1.42}
+.quote .who{font-size:16px;color:var(--faint);margin-top:10px}
+
+/* 卡片 */
+.cards{display:grid;gap:clamp(12px,1.4vw,20px);margin-top:clamp(18px,2.6vh,32px)}
+.cards.c3{grid-template-columns:repeat(3,1fr)}
+.cards.c4{grid-template-columns:repeat(4,1fr)}
+.card{background:rgba(244,241,232,.07);border:1px solid var(--hair);border-radius:16px;
+ padding:clamp(16px,1.6vw,24px);display:flex;flex-direction:column;gap:8px}
+.card .t{font-size:clamp(18px,1.5vw,24px);font-weight:800;line-height:1.3}
+.card .d{font-size:16px;line-height:1.55;color:var(--dim)}
+.card .tag{font-size:16px;font-weight:800;letter-spacing:.1em;color:var(--gold)}
+.card.solid{background:var(--gold);border-color:var(--gold);color:var(--sea-d)}
+.card.solid .t,.card.solid .d{color:var(--sea-d)}
+.card.solid .d{opacity:.82}
+.card.solid .tag{color:rgba(6,42,51,.6)}
+
+/* LINE 介面模擬 */
+.phone{width:clamp(240px,20vw,300px);border-radius:30px;background:#0d0f11;padding:9px;flex:none;
+ box-shadow:0 30px 60px -28px rgba(0,0,0,.9)}
+.phone .scr{background:#8CABC0;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;height:clamp(400px,58vh,540px)}
+.phone .top{background:#0B4552;padding:9px 12px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff}
+.phone .top i{width:9px;height:9px;border-radius:50%;background:var(--line-green);flex:none;font-style:normal}
+.phone .body{flex:1;overflow:hidden;padding:11px;display:flex;flex-direction:column;gap:8px}
+.phone .msg{max-width:86%;font-size:16px;line-height:1.55;padding:9px 12px;border-radius:15px;background:#fff;color:#16212b;white-space:pre-line}
+.phone .msg.me{align-self:flex-end;background:#8DE055;color:#16240f}
+.phone .menu img{width:100%;display:block}
+.phone .bar2{flex:none;background:#fff;border-top:1px solid #e2e2e2;padding:9px 11px;display:flex;gap:8px;align-items:center}
+.phone .bar2 span{flex:1;background:#f1f2f4;border-radius:999px;padding:7px 13px;font-size:16px;color:#98a0a8}
+.phone .bar2 i{width:30px;height:30px;border-radius:50%;background:var(--line-green);flex:none;font-style:normal}
+.split{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,3.5vw,56px);align-items:center;margin-top:clamp(12px,2vh,24px)}
+.split.rev{grid-template-columns:1fr auto}
+
+/* 卡片輪播模擬 */
+.carou{display:flex;gap:12px;margin-top:clamp(16px,2.4vh,28px);overflow:hidden}
+.cd{width:clamp(168px,15vw,215px);flex:none;background:#fff;border-radius:13px;overflow:hidden;color:#16212b;
+ box-shadow:0 18px 34px -20px rgba(0,0,0,.75)}
+.cd img{width:100%;aspect-ratio:20/13;object-fit:cover;display:block}
+.cd .b{padding:10px 12px 12px}
+.cd .t2{font-size:16px;font-weight:800;line-height:1.3}
+.cd .d2{font-size:16px;color:#5b6672;line-height:1.45;margin-top:3px;min-height:2.9em}
+.cd .btn{margin-top:9px;background:#0B4552;color:#fff;font-size:16px;font-weight:700;border-radius:7px;padding:6px 0;text-align:center}
+.cd .btn+.btn{margin-top:5px;background:#1B7A8C}
+
+/* 表 */
+table{width:100%;border-collapse:collapse;margin-top:clamp(16px,2.4vh,28px);font-size:clamp(16px,1.15vw,19px)}
+th{text-align:left;font-weight:800;color:var(--gold);padding:11px 14px;border-bottom:2px solid var(--hair);font-size:16px;letter-spacing:.06em}
+td{padding:13px 14px;border-bottom:1px solid var(--hair);line-height:1.5;color:var(--dim);vertical-align:top}
+td.k{color:#fff;font-weight:800;white-space:nowrap}
+td.hi{color:var(--gold);font-weight:800}
+
+/* 底部列 */
+.hud{position:fixed;left:0;right:0;bottom:0;height:64px;z-index:40;display:flex;align-items:center;
+ gap:16px;padding:0 clamp(20px,3vw,44px);
+ background:linear-gradient(transparent,rgba(6,42,51,.9) 45%);pointer-events:none}
+.hud .sec{font-size:16px;font-weight:800;letter-spacing:.16em;color:var(--faint);white-space:nowrap}
+.dots{display:flex;gap:6px;flex:1;align-items:center}
+.dots i{height:3px;flex:1;max-width:34px;background:var(--hair);border-radius:2px;transition:background .3s}
+.dots i.on{background:var(--gold)}
+.hud .nav{display:flex;gap:8px;pointer-events:auto}
+.hud button{background:rgba(244,241,232,.12);border:1px solid var(--hair);color:var(--cream);
+ border-radius:9px;width:40px;height:36px;font-size:17px;cursor:pointer;font-family:inherit}
+.hud button:hover{background:var(--gold);color:var(--sea-d);border-color:var(--gold)}
+.pgn{position:absolute;right:clamp(20px,3vw,44px);top:clamp(26px,3.4vh,40px);font-size:16px;font-weight:800;
+ color:var(--faint);letter-spacing:.1em;z-index:3}
+
+@media print{
+  @page{size:1280px 720px;margin:0}
+  body{overflow:visible;height:auto}
+  #deck{position:static;overflow:visible;height:auto}
+  .sl{height:720px;page-break-after:always;scroll-snap-align:none}
+  .rv{opacity:1!important;transform:none!important;filter:none!important}
+  .hud{display:none}
+}
+
+/* 整合架構圖 */
+.rvs{opacity:0;transition:opacity .55s var(--e)}
+.rvs.on{opacity:1}
+.rvs.past{opacity:.24}
+.iawrap{margin-top:clamp(10px,2vh,22px)}
+.iawrap svg{width:100%;height:auto;display:block}
+/* 螢幕錄影 */
+.phone.big{width:clamp(268px,23vw,340px)}
+.phone.big .scr{height:clamp(430px,64vh,620px);background:#0d0f11;position:relative}
+.phone.big video{width:100%;height:100%;object-fit:cover;display:block;background:#0d0f11}
+.vph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:12px;text-align:center;padding:26px;background:#11333c;color:var(--cream)}
+.vph .ic{width:56px;height:56px;border-radius:50%;border:3px solid var(--gold);display:flex;align-items:center;
+ justify-content:center}
+.vph .ic::after{content:"";border-left:17px solid var(--gold);border-top:11px solid transparent;
+ border-bottom:11px solid transparent;margin-left:5px}
+.vph .t3{font-size:18px;font-weight:800}
+.vph .d3{font-size:16px;color:var(--dim);line-height:1.55}
+.vph code{font-family:ui-monospace,Menlo,monospace;font-size:16px;color:var(--gold)}
+
+/* 方法鏈三段 */
+.chain{display:grid;grid-template-columns:1fr 46px 1fr 46px 1fr;align-items:stretch;gap:0;margin-top:clamp(14px,2.4vh,28px)}
+.chain .ar2{display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold)}
+.ch{background:rgba(244,241,232,.07);border:1px solid var(--hair);border-radius:16px;padding:clamp(14px,1.5vw,22px);display:flex;flex-direction:column;gap:7px}
+.ch .en2{font-size:16px;font-weight:800;letter-spacing:.16em;color:var(--gold)}
+.ch .zh2{font-size:clamp(17px,1.35vw,21px);font-weight:800;line-height:1.35}
+.ch .ex{font-size:16px;line-height:1.55;color:var(--dim);border-top:1px dashed var(--hair);padding-top:9px;margin-top:auto}
+.ch .ex b{color:#fff}
+.prin{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.1vw,15px);margin-top:clamp(14px,2.4vh,26px)}
+.pr{background:rgba(244,241,232,.07);border:1px solid var(--hair);border-radius:13px;padding:13px 15px}
+.pr .n2{font-family:ui-monospace,Menlo,monospace;font-size:16px;font-weight:700;color:var(--gold)}
+.pr .t4{font-size:clamp(16px,1.15vw,19px);font-weight:800;line-height:1.35;margin-top:3px}
+
+/* 掃碼加好友 */
+.qrbox{background:#fff;border-radius:20px;padding:clamp(14px,1.4vw,20px);display:inline-block;
+ box-shadow:0 24px 50px -26px rgba(0,0,0,.8)}
+.qrbox img{width:clamp(180px,15vw,240px);height:auto;display:block}
+.qrside{display:flex;gap:clamp(18px,2.4vw,34px);align-items:center}
+.qrtxt .big2{font-size:clamp(24px,2.4vw,38px);font-weight:800;line-height:1.28}
+.qrtxt .sub2{font-size:clamp(17px,1.3vw,21px);color:var(--dim);line-height:1.55;margin-top:8px}
+.qrtxt .id{display:inline-block;margin-top:12px;font:800 clamp(18px,1.5vw,24px)/1 ui-monospace,Menlo,monospace;
+ color:var(--gold);border:2px solid var(--gold);border-radius:10px;padding:9px 15px;letter-spacing:.04em}
+
+/* 收束條。v2 改版時漏帶，補回來 */
+.spine{background:rgba(244,241,232,.1);border:1px solid var(--hair);border-radius:15px;
+ padding:clamp(13px,1.5vh,18px) clamp(18px,2vw,26px);margin-top:clamp(14px,2.2vh,22px);
+ display:flex;align-items:center;gap:clamp(14px,1.8vw,24px)}
+.spine .lb2{flex:none;font-size:16px;font-weight:800;letter-spacing:.14em;color:var(--gold);white-space:nowrap}
+.spine p{font-size:clamp(17px,1.35vw,22px);line-height:1.5;font-weight:700}
+@media(max-width:900px){.spine{flex-direction:column;align-items:flex-start;gap:6px}}
+
+/* 時間軸 */
+.tline{display:grid;grid-template-columns:repeat(6,1fr);margin-top:clamp(16px,2.6vh,30px);position:relative}
+.tline::before{content:"";position:absolute;left:6%;right:6%;top:13px;height:3px;background:var(--hair)}
+.tline div{text-align:center;position:relative;padding-top:36px}
+.tline div::before{content:"";position:absolute;left:50%;top:5px;transform:translateX(-50%);
+ width:19px;height:19px;border-radius:50%;background:var(--sea-d);border:3px solid var(--hair)}
+.tline div.hi::before{border-color:var(--gold);background:var(--gold)}
+.tline .y2{font-size:clamp(17px,1.3vw,21px);font-weight:800}
+.tline .w2{font-size:16px;color:var(--dim);line-height:1.4;margin-top:5px}
+/* 競爭條 */
+.bars{margin-top:clamp(16px,2.6vh,30px);display:flex;flex-direction:column;gap:clamp(10px,1.5vh,16px)}
+.brw{display:grid;grid-template-columns:110px 1fr 130px;align-items:center;gap:16px}
+.brw .nm2{font-size:clamp(17px,1.3vw,21px);font-weight:800}
+.brw .tr{height:clamp(26px,3.2vh,38px);background:rgba(244,241,232,.09);border-radius:8px;overflow:hidden}
+.brw .fl{height:100%;background:rgba(244,241,232,.34);border-radius:8px}
+.brw.me .fl{background:var(--gold)}
+.brw.me .nm2{color:var(--gold)}
+.brw .vv{font-size:clamp(17px,1.3vw,21px);font-weight:800;text-align:right}
+
+/* 中英切換 */
+#langBtn{position:fixed;top:clamp(18px,2.6vh,30px);right:clamp(18px,2.4vw,34px);z-index:60;
+ display:flex;border:1px solid var(--hair);border-radius:999px;overflow:hidden;background:rgba(6,42,51,.55);
+ -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#langBtn button{border:0;background:transparent;color:var(--dim);font-family:var(--f);font-size:16px;
+ font-weight:800;padding:7px 16px;cursor:pointer;letter-spacing:.04em}
+#langBtn button.on{background:var(--gold);color:var(--sea-d)}
+/* 英文比中文佔行，整體收一級，避免溢出 */
+html[lang="en"] h1{font-size:clamp(30px,min(4.4vw,7.6vh),64px);letter-spacing:-.02em}
+html[lang="en"] h2{font-size:clamp(23px,min(2.9vw,5.2vh),42px)}
+html[lang="en"] .lead{font-size:clamp(16px,min(1.2vw,2.1vh),20px)}
+html[lang="en"] .quote p{font-size:clamp(19px,1.8vw,29px)}
+html[lang="en"] .card .t,html[lang="en"] .pth .t2{font-size:clamp(17px,1.35vw,21px)}
+html[lang="en"] .pt{font-size:clamp(16px,1.2vw,20px)}
+html[lang="en"] .ch .zh2{font-size:clamp(16px,1.2vw,19px);line-height:1.3}
+html[lang="en"] .pr .t4{font-size:clamp(16px,1.1vw,18px);line-height:1.3}
+html[lang="en"] .spine p{font-size:clamp(16px,1.2vw,19px)}
+html[lang="en"] .qrtxt .big2{font-size:clamp(21px,2vw,32px)}
+html[lang="en"] table{font-size:clamp(16px,1.1vw,18px)}
+html[lang="en"] .fig .l{font-size:16px}
+@media print{#langBtn{display:none}}
+</style>
+</head>
+<body>
+<div id="deck">
+<!-- ═══ 01　Hook ═══ -->
+<section class="sl photo" data-sec="痛點">
+<div class="full"><img alt="生食區攤位與假日人潮" src="oa_img/ph-stall-banner.jpg"/></div>
+<div class="onpic">
+<div class="kick rv auto" data-en="Kezailiao　·　Tzukuan Fisheries Association　·　Team 5">蚵仔寮　·　梓官區漁會　·　第五組</div>
+<h1 class="rv auto" data-en='6.6 million people walk through here&lt;br/&gt;and the path &lt;span class="g"&gt;breaks halfway&lt;/span&gt;' style="margin-top:18px">六百六十萬人走過這裡<br/>這條路<span class="g">走到一半就斷了</span></h1>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 02　證據來源 ═══ -->
+<section class="sl" data-sec="痛點">
+<div class="kick rv auto" data-en="How we know">我們怎麼知道的</div>
+<h2 class="rv auto" data-en="We followed one group. Car park to exit. Thirty-four minutes.">跟著一組客人，從停車到離開，三十四分鐘</h2>
+<p class="lead rv" data-en="No questions. No interruptions. Just notes. &lt;b&gt;The only data politeness cannot spoil.&lt;/b&gt;&lt;br/&gt;Sample: one group followed in full on Aug 8, plus what we saw across other groups. &lt;b&gt;It points a direction. It is not a statistic.&lt;/b&gt;">不問問題、不打擾、只記錄。<b>這是唯一不會被客套話污染的資料。</b><br/>樣本是 8/8 單日、完整跟隨一組，加上跨組目視。<b>它指方向，不是統計。</b></p>
+<div class="shots c4">
+<div class="shot rv keep"><img alt="路邊違停" src="oa_img/ph-roadside.jpg"/><div class="cap" data-en="0 min　Parked on the street&lt;em&gt;Not in a car park&lt;/em&gt;">0 分　路邊違停<em>沒有停進停車場</em></div></div>
+<div class="shot rv keep"><img alt="進場" src="oa_img/ph-raw-crowd.jpg"/><div class="cap" data-en="3 min　Inside&lt;em&gt;Stopped at the first stall after two minutes&lt;/em&gt;">3 分　進場<em>走兩三分鐘就停在一攤</em></div></div>
+<div class="shot rv keep"><img alt="貨比三家" src="oa_img/ph-compare-1.jpg"/><div class="cap" data-en="3 to 27 min　Comparing&lt;em&gt;Bought, walked out, came back and bought again&lt;/em&gt;">3 到 27 分　比價<em>買完走出去又回頭再買</em></div></div>
+<div class="shot rv keep"><img alt="熟食區" src="oa_img/ph-cooked-seats.jpg"/><div class="cap" data-en="31 min　Snack outside&lt;em&gt;Left at 34 min&lt;/em&gt;">31 分　場外小吃<em>34 分離開</em></div></div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 03　20 分鐘在猶豫 ═══ -->
+<section class="sl photo" data-sec="痛點">
+<div class="full"><img alt="客人在攤位前挑選" src="oa_img/ph-compare-2.jpg"/></div>
+<div class="onpic">
+<div class="kick rv auto" data-en="First finding">第一個發現</div>
+<h2 class="rv auto" data-en="The visit is not short. What he takes home is.">停留不算短。短的是他換到的東西</h2>
+<div class="figs">
+<div class="fig rv keep"><div class="v mute" data-en="34&lt;u&gt;min&lt;/u&gt;" style="color:var(--cream)">34<u>分</u></div><div class="l" data-en="Total time on site&lt;br/&gt;Not rushed">全程停留<br/>不算趕時間</div></div>
+<div class="fig rv keep"><div class="v" data-en="20&lt;u&gt;min&lt;/u&gt;">20<u>分</u></div><div class="l" data-en="Spent comparing stalls&lt;br/&gt;Six tenths of the visit">花在貨比三家<br/>佔全程六成</div></div>
+<div class="fig rv keep"><div class="v mute" data-en="2&lt;u&gt;times&lt;/u&gt;" style="color:var(--cream)">2<u>次</u></div><div class="l" data-en="Came back to buy again&lt;br/&gt;He is willing to spend">買完又回頭<br/>他是願意買的</div></div>
+</div>
+<p class="lead rv" data-en='&lt;b&gt;He is not in a hurry. He is stuck deciding.&lt;/b&gt; Someone willing to spend twenty minutes choosing a stall does not need a faster process. He needs help deciding.&lt;br/&gt;&lt;span style="opacity:.72"&gt;All three numbers come from the group we followed in full on Aug 8.&lt;/span&gt;'><b>他不是趕時間，是卡在決定。</b>願意花二十分鐘決定買哪一攤的人，缺的不是更快的流程，是幫他決定的東西。<br/><span style="opacity:.72">以上三個數字來自 8/8 完整跟隨的那一組。</span></p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 04　四種走法 ═══ -->
+<section class="sl" data-sec="痛點">
+<div class="kick rv auto" data-en="Across groups">跨組觀察</div>
+<h2 class="rv auto" data-en='Four ways to walk it. &lt;span class="g"&gt;Every one of them stops halfway.&lt;/span&gt;'>當天看到四種走法，<span class="g">每一種都只走一段</span></h2>
+<div class="shots c4">
+<div class="shot rv keep"><img alt="只買東西" src="oa_img/ph-stall-banner.jpg"/><div class="cap" data-en="Buy a snack, leave">只買東西就走</div></div>
+<div class="shot rv keep"><img alt="只買魚貨" src="oa_img/ph-raw-crowd.jpg"/><div class="cap" data-en="Buy fish, leave">只買魚貨就走</div></div>
+<div class="shot rv keep"><img alt="只去代客料理" src="oa_img/ph-cooked-seats.jpg"/><div class="cap" data-en="Go straight to a cook-for-you shop">只去代客料理</div></div>
+<div class="shot rv keep"><img alt="買完再去代客料理" src="oa_img/ph-dry-aisle.jpg"/><div class="cap" data-en="Buy fish, get it cooked, leave">買魚再去料理，然後離開</div></div>
+</div>
+<h3 class="rv" data-en='We never saw anyone join them up. &lt;span class="g"&gt;Because no stage tells you there is a next one.&lt;/span&gt;' style="margin-top:26px">我們沒有看到有人把它們串起來。<span class="g">因為沒有一段告訴他還有下一段。</span></h3>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 05　我們實際跟到的 ═══ -->
+<section class="sl" data-sec="痛點">
+<div class="split">
+<div>
+<div class="kick rv auto" data-en="Aug 8, after 1pm">8/8 下午一點以後</div>
+<h2 class="rv auto" data-en='The one group we followed in full&lt;br/&gt;&lt;span class="g"&gt;did not reach the last stop&lt;/span&gt;'>完整跟到的那一組<br/><span class="g">沒有走完全程</span></h2>
+<div class="figs" style="gap:clamp(20px,3vw,44px)">
+<div class="fig rv keep"><div class="v" data-en="1&lt;u&gt; group&lt;/u&gt;" style="font-size:clamp(56px,min(8vw,13vh),110px)">1<u> 組</u></div><div class="l" data-en="Followed in full&lt;br/&gt;thirty-four minutes">完整跟隨<br/>三十四分鐘</div></div>
+<div class="fig rv keep"><div class="v" style="font-size:clamp(56px,min(8vw,13vh),110px)">0</div><div class="l" data-en="Times this group reached&lt;br/&gt;the last stop">這一組走到<br/>最後一站的次數</div></div>
+</div>
+<p class="lead rv" data-en="&lt;b&gt;Everything else is eyes, not counts.&lt;/b&gt; Most people we saw stayed a while and left.&lt;br/&gt;&lt;b&gt;We have no figure for how many finish the route. Only that it is few.&lt;/b&gt;"><b>其餘是目視，不是計數。</b>看到的多數人停留一段時間就離開。<br/><b>走完全程的比例我們沒有數據，只能說偏少。</b></p>
+</div>
+<div class="shots">
+<div class="shot tall rv keep"><img alt="門市部" src="oa_img/ph-shop-two.jpg"/><div class="cap" data-en="The gift shop, same afternoon&lt;em&gt;Only association staff and us in frame&lt;/em&gt;">同一個下午的門市部<em>畫面裡只有漁會同仁與我們</em></div></div>
+</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 05b　為什麼只走一段 ═══ -->
+<section class="sl" data-sec="痛點">
+<div class="kick rv auto" data-en="Why most people stop halfway">為什麼多數人只走一段</div>
+<h2 class="rv auto" data-en="They are willing. Every stage pushes them back.">不是不想走，是每一段都有東西把他擋回去</h2>
+<div class="cards c3">
+<div class="card rv keep"><div class="tag" data-en="Before entering">進場前</div><div class="t" data-en="Queues start after 11:50">11:50 之後開始排隊</div><div class="d" data-en="You wait for a space. &lt;b&gt;Weekends only&lt;/b&gt;, never on weekdays. The free car park sits a walk away from the main hall.">停車位要等。<b>這件事只在週六日發生</b>，平日不會。免費停車場離主區還有一段距離。</div></div>
+<div class="card rv keep"><div class="tag" data-en="On arrival">進場時</div><div class="t" data-en="Signs are easy to miss">指示不明顯</div><div class="d" data-en="Nothing on site tells him which stages are still ahead.">現場沒有一個地方告訴他等一下可以走哪幾段。</div></div>
+<div class="card rv keep"><div class="tag" data-en="After eating">吃完之後</div><div class="t" data-en="The exit is right there">出口就在旁邊</div><div class="d" data-en="Full, heading back to the car, the last stop is right by the door. No reason to push it open.">吃飽往停車場走，最後一站的門就在那裡，但沒有理由讓他推開。</div></div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="What the three share">三段的共同點</div>
+<p data-en="Each stage stalls for a different reason. &lt;b&gt;What they share is one thing: nobody tells him, at that moment, that there is a next stage.&lt;/b&gt;">每一段卡住的原因都不一樣，<b>但共同點是同一件事：沒有人在那個當下告訴他還有下一段。</b></p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 06　為什麼斷 ═══ -->
+<section class="sl" data-sec="痛點">
+<div class="kick rv auto" data-en="Why it has never been fixed">為什麼一直沒被解決</div>
+<h2 class="rv auto" data-en="The path crosses three departments. It belongs to none of them.">這條路橫跨三個部門，沒有人是它的主人</h2>
+<div class="cards c3">
+<div class="card rv keep"><div class="tag" data-en="Buying fish">買魚</div><div class="t" data-en="Fish Market Division">魚市場部門</div><div class="d" data-en="Auction and stalls">拍賣與攤位</div></div>
+<div class="card rv keep"><div class="tag" data-en="Cooking and carrying out">料理與帶走</div><div class="t" data-en="Supply and Marketing">供銷部</div><div class="d" data-en="Retail, packing, shipping">門市、包裝、寄送</div></div>
+<div class="card rv keep"><div class="tag" data-en="Experiences and events">體驗與活動</div><div class="t" data-en="Outreach">推廣部</div><div class="d" data-en="Courses and tours">課程與導覽</div></div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="A structural gap">結構問題</div>
+<p data-en="Each department runs its own stage well. &lt;b&gt;What nobody runs is the handover, because the handover is not in anyone's job.&lt;/b&gt;">三個部門各自都把自己那一段做得不錯。<b>沒有做的是中間的交接，因為那一段不屬於任何一個部門的職責。</b></p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 07　洞察 ═══ -->
+<section class="sl" data-sec="洞察">
+<div class="kick rv auto" data-en="The insight">關鍵洞察</div>
+<h2 class="rv auto" data-en='They are not missing services. &lt;span class="g"&gt;They are missing an order.&lt;/span&gt;'>缺的不是服務。<span class="g">是順序。</span></h2>
+<p class="lead rv" data-en="Every item below already exists, and works. &lt;b&gt;They just never appear on the path the customer walks.&lt;/b&gt;">下面每一項都已經存在，而且做得不錯。<b>它們只是沒有出現在客人走的那條路上。</b></p>
+<div class="shots c4">
+<div class="shot rv keep"><img alt="公秤" src="oa_img/ph-scale.jpg"/><div class="cap" data-en="Public scales&lt;em&gt;Fear of being cheated was solved long ago&lt;/em&gt;">公秤與複秤<em>怕被騙這件事早就解了</em></div></div>
+<div class="shot rv keep"><img alt="食魚教育展示" src="oa_img/ph-edu-board.jpg"/><div class="cap" data-en="Seafood education&lt;em&gt;Classes already run&lt;/em&gt;">食魚教育<em>課程已經在跑</em></div></div>
+<div class="shot rv keep"><img alt="門市部" src="oa_img/ph-shop-inside.jpg"/><div class="cap" data-en="Ice, vacuum, delivery&lt;em&gt;Four ways to carry it home&lt;/em&gt;">寄冰真空宅配<em>四種帶走方式都有</em></div></div>
+<div class="shot rv keep"><img alt="二樓" src="oa_img/ph-f2-window.jpg"/><div class="cap" data-en="The second floor&lt;em&gt;Planned for cook-for-you in the first place&lt;/em&gt;">二樓的位置<em>本來就是規劃給代客料理的</em></div></div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- 他們的成績單 -->
+<section class="sl dark" data-sec="洞察">
+<div class="kick rv auto" data-en="Who they already are">先講清楚他們是誰</div>
+<h2 class="rv auto" data-en='Everything the people here started themselves &lt;span class="g"&gt;worked&lt;/span&gt;'>凡是這裡的人自己發起的，<span class="g">都做成了</span></h2>
+<div class="figs">
+<div class="fig rv keep"><div class="v" data-en="6.6&lt;u&gt;m&lt;/u&gt;">660<u>萬</u></div><div class="l" data-en="Visitors in 2025&lt;br/&gt;Second among all fishing ports">2025 全年觀光人次<br/>全台漁港第二</div></div>
+<div class="fig rv keep"><div class="v" data-en="4,000&lt;u&gt;t&lt;/u&gt;">4,000<u>噸</u></div><div class="l" data-en="Traded at the fish market&lt;br/&gt;Over NT$500m in value">魚市場年交易量<br/>產值逾五億</div></div>
+<div class="fig rv keep"><div class="v" data-en="20k&lt;u&gt;boxes&lt;/u&gt;">2<u>萬盒</u></div><div class="l" data-en="Boxes of mullet roe sold&lt;br/&gt;a year at US Costco">烏魚子在美國好市多<br/>的年銷量</div></div>
+<div class="fig rv keep"><div class="v" data-en="4&lt;u&gt;awards&lt;/u&gt;">4<u>座</u></div><div class="l" data-en="Design awards&lt;br/&gt;Red Dot, iF, Good Design, OTOP">設計獎<br/>紅點、iF、Good Design、OTOP</div></div>
+</div>
+<div class="tline">
+<div class="rv keep"><div class="y2">2001</div><div class="w2" data-en="Credit department taken over&lt;br/&gt;Payroll missed">信用部被接管<br/>發不出薪水</div></div>
+<div class="rv keep hi"><div class="y2">2012</div><div class="w2" data-en="Filed their own motion&lt;br/&gt;to the members' assembly">自己向會員代表<br/>大會提案</div></div>
+<div class="rv keep"><div class="y2">2014</div><div class="w2" data-en="Own store, online market&lt;br/&gt;direct sales centre opens">直營門市、網路魚市<br/>直銷中心落成</div></div>
+<div class="rv keep hi"><div class="y2">2015</div><div class="w2" data-en="First HACCP plant in Taiwan&lt;br/&gt;Credit department reopens">HACCP 全國第一<br/>信用部重開</div></div>
+<div class="rv keep"><div class="y2">2023</div><div class="w2" data-en="Cold-chain centre&lt;br/&gt;Mullet roe enters Costco">冷鏈展售中心<br/>烏魚子進好市多</div></div>
+<div class="rv keep"><div class="y2">2025</div><div class="w2" data-en="6.6m visitors&lt;br/&gt;Second in Taiwan">觀光人次 660 萬<br/>全台第二</div></div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="So this is our posture">所以我們的姿態</div>
+<p data-en="We do not ask whether they ever thought about change. &lt;b&gt;We ask how they pulled it off back then.&lt;/b&gt; Capability is not the missing piece.">不是問他們有沒有想過轉型，<b>是問當年怎麼做到的。</b>缺的那一格不是能力。</p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- 市場 -->
+<section class="sl" data-sec="洞察">
+<div class="kick rv auto" data-en="They stand in two markets at once">他們同時站在兩個市場上</div>
+<h2 class="rv auto" data-en='One is already second in Taiwan. &lt;span class="g"&gt;The other has not started.&lt;/span&gt;'>一個已經是全台第二，<span class="g">另一個還沒開始</span></h2>
+<div class="cards c2" style="grid-template-columns:1fr 1fr">
+<div class="card rv keep">
+<div class="tag" data-en="Market 1　On site">市場一　到店</div>
+<div class="t" data-en="6.6 million visits">六百六十萬人次</div>
+<div class="d" data-en="Second among all fishing ports. &lt;b&gt;Acquisition cost is close to zero&lt;/b&gt;: the traffic comes from location and word of mouth, not ad spend. This is their most underrated asset.">全台漁港第二。<b>取得成本趨近於零</b>，流量來自地點與口碑，不是投放。這是他們最被低估的資產。</div>
+</div>
+<div class="card rv keep">
+<div class="tag" data-en="Market 2　Online">市場二　線上</div>
+<div class="t" data-en="NT$94.4 billion">九百四十四億</div>
+<div class="d" data-en="Taiwan's fresh-food e-commerce market, growing 8.7% a year, average order NT$1,372. &lt;b&gt;They have the store, the cold chain and the certification. What they do not have is a path between the two markets.&lt;/b&gt;">台灣生鮮食品電商規模，年成長 8.7%，客單價 1,372 元。<b>他們有電商、有冷鏈、有認證，但兩個市場之間沒有一條路。</b></div>
+</div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="The gap sits in the middle">缺口在中間</div>
+<p data-en="People on site do not know the online store exists. People online have never seen the place. &lt;b&gt;The thing that joins them is the contact list.&lt;/b&gt;">到店的人不知道有線上，線上的人不知道現場長什麼樣。<b>把這兩邊接起來的東西，就是那份名單。</b></p>
+</div>
+<div class="pgn"></div>
+</section>
+
+<!-- 遊客服務中心 -->
+<section class="sl dark" data-sec="洞察">
+  <div class="kick rv auto" data-en="Found on Aug 9">8/9 才發現的一件事</div>
+  <h2 class="rv auto" data-en='They already built a visitor centre. <span class="g">It is a storeroom now.</span>'>他們早就蓋過一個遊客服務中心。<span class="g">現在裡面堆雜貨。</span></h2>
+  <p class="lead rv" data-en="Next to the auction hall, with a sign still up and the door open. Inside is stock. Nobody runs it.">就在拍賣場旁邊，標示還在，門也開著。<b>裡面堆的是他們的貨，沒有人在做那件事。</b></p>
+  <div class="cards c3">
+    <div class="card rv keep">
+      <div class="tag" data-en="Not this">不是這個問題</div>
+      <div class="t" data-en="They never thought of it">沒想過要做</div>
+      <div class="d" data-en="They did think of it. They built it.">他們想過，而且蓋了。</div>
+    </div>
+    <div class="card rv keep">
+      <div class="tag" data-en="Not this either">也不是這個</div>
+      <div class="t" data-en="No money">沒有錢</div>
+      <div class="d" data-en="The space, the sign and the fit-out were all paid for.">空間、標示、裝修都花過錢了。</div>
+    </div>
+    <div class="card rv keep" style="background:var(--gold);border-color:var(--gold)">
+      <div class="tag" style="color:rgba(6,42,51,.6)" data-en="This">是這個</div>
+      <div class="t" style="color:#062A33" data-en="Nobody was left to run it">沒有人留下來顧它</div>
+      <div class="d" style="color:#062A33" data-en="Anything needing a person on duty every day quietly dies here.">任何需要每天有人顧的東西，在這裡都會安靜地死掉。</div>
+    </div>
+  </div>
+  <div class="spine rv">
+    <div class="lb2" data-en="What it changes">這件事改變了什麼</div>
+    <p data-en="It is the strongest argument for our own principle 06. <b>If our answer needs someone on duty, it ends up in that room too.</b>">這是設計原則 06 最強的證據。<b>如果我們的解法需要有人顧，它最後也會進那個房間。</b></p>
+  </div>
+  <div class="pgn"></div>
+</section>
+
+<!-- ═══ 08　值多少 ═══ -->
+<section class="sl" data-sec="洞察">
+<div class="kick rv auto" data-en="What the broken path is worth">這條斷掉的路值多少</div>
+<h2 class="rv auto" data-en="One point of retention beats one more building">留存每動一個百分點，效果比再蓋一棟大</h2>
+<table>
+<tr><th data-en="Case">情境</th><th data-en="Leave contact after a visit">來訪後留下聯絡方式</th><th data-en="Repeat revenue a year">年回購金額</th><th data-en="What it takes">要做什麼</th></tr>
+<tr class="rv keep"><td class="k" data-en="Today">現在</td><td data-en="4,180 friends already">已有 4,180 位好友</td><td class="hi" data-en="Not obtained">未取得</td><td data-en="The list exists. We were not given data linking it to visits.">名單存在，但我們沒有拿到它跟到訪的對應資料</td></tr>
+<tr class="rv keep"><td class="k" data-en="Low">保守</td><td data-en="1%　66,000 people">1%　6.6 萬人</td><td class="hi" data-en="about NT$13m">約 1,300 萬</td><td data-en="A reason to scan a code at checkout">結帳時給一個掃碼的理由</td></tr>
+<tr class="rv keep"><td class="k" data-en="Mid">中性</td><td data-en="3%　198,000 people">3%　19.8 萬人</td><td class="hi" data-en="about NT$89m">約 8,900 萬</td><td data-en="Add ice-holding and delivery prompts">加上寄冰與宅配的引導</td></tr>
+<tr class="rv keep"><td class="k" data-en="High">積極</td><td data-en="5%　330,000 people">5%　33 萬人</td><td class="hi" data-en="about NT$260m">約 2.6 億</td><td data-en="Membership and a reason to stay upstairs">會員制與二樓的停留體驗</td></tr>
+</table>
+<p class="note rv keep" data-en="Basis: 6.6m visits × NT$1,000 per order. &lt;b&gt;For scale: the cold-chain centre cost NT$18m.&lt;/b&gt;">推估基礎：660 萬人次 × 客單價 1,000 元。<b>對照組：冷鏈展售中心 1,800 萬。</b></p>
+<div class="pgn"></div>
+</section>
+<!-- 商業模式 -->
+<section class="sl" data-sec="洞察">
+<div class="kick rv auto" data-en="Where the money comes from">錢從哪裡來</div>
+<h2 class="rv auto" data-en='Three revenue lines. &lt;span class="g"&gt;Only one can still grow.&lt;/span&gt;'>三條收入線，<span class="g">只有一條還長得動</span></h2>
+<table>
+<tr><th data-en="Revenue line" style="width:24%">收入線</th><th data-en="Today" style="width:30%">現在</th><th data-en="Can it grow">還能不能長</th></tr>
+<tr class="rv keep"><td class="k" data-en="Auction commission">拍賣抽佣</td><td data-en="4,000 tonnes traded a year">魚市場年交易 4,000 噸</td><td data-en="Steady, but the rate has a statutory ceiling the association does not set">穩定，但抽佣比率有法定天花板，不是漁會自己能決定</td></tr>
+<tr class="rv keep"><td class="k" data-en="Own brand and channels">自有品牌與通路</td><td class="hi" data-en="Lianlian Kezailiao, the online store, Costco">戀戀蚵仔寮、線上漁港、好市多</td><td class="hi" data-en="Yes. Cold chain, certification and e-commerce are already built">能長。冷鏈、認證、電商都已經蓋好了</td></tr>
+<tr class="rv keep"><td class="k" data-en="Credit department">信用部</td><td data-en="Reopened 2015, 3,000 accounts">2015 重開，開戶 3,000 人</td><td data-en="Under financial supervision. Its growth has nothing to do with tourism">受金融監理，成長路徑跟觀光無關</td></tr>
+</table>
+<div class="figs" style="margin-top:clamp(14px,2vh,22px)">
+<div class="fig rv keep"><div class="v" data-en="Near zero" style="font-size:clamp(34px,min(4.4vw,7vh),58px)">趨近零</div><div class="l" data-en="Cost to reach a visitor&lt;br/&gt;No ad spend involved">遊客取得成本<br/>不靠投放</div></div>
+<div class="fig rv keep"><div class="v" data-en="Not obtained" style="font-size:clamp(34px,min(4.4vw,7vh),58px)">未取得</div><div class="l" data-en="Lifetime value per person&lt;br/&gt;No repeat data, so it cannot be calculated">一個人的終身價值<br/>沒有回訪資料，算不出來</div></div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="The lever">槓桿</div>
+<p data-en="Growth can only come from the second line, &lt;b&gt;and the second line depends entirely on how many of those 6.6 million are still reachable.&lt;/b&gt;">成長只能來自第二條，<b>而第二條完全取決於那六百六十萬人裡有多少人還聯絡得到。</b></p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- 競爭 -->
+<section class="sl dark" data-sec="洞察">
+<div class="kick rv auto" data-en="Competition">競爭</div>
+<h2 class="rv auto" data-en='Already second among ports. &lt;span class="g"&gt;The real rival is not a port.&lt;/span&gt;'>在漁港這一塊已經第二，<span class="g">真正的對手不在漁港</span></h2>
+<div class="bars">
+<div class="brw rv keep"><div class="nm2" data-en="First">第一名</div><div class="tr"><div class="fl" style="width:100%"></div></div><div class="vv" data-en="7.82m">781.7 萬</div></div>
+<div class="brw me rv keep"><div class="nm2" data-en="Kezailiao">蚵仔寮</div><div class="tr"><div class="fl" style="width:84%"></div></div><div class="vv" data-en="6.60m">660.2 萬</div></div>
+<div class="brw rv keep"><div class="nm2" data-en="Third">第三名</div><div class="tr"><div class="fl" style="width:31%"></div></div><div class="vv" data-en="2.45m">245.4 萬</div></div>
+</div>
+<p class="lead rv" data-en="Kezailiao is &lt;b&gt;2.7 times&lt;/b&gt; the third-placed port. There is little room left to take from other ports.">蚵仔寮是第三名的 <b>2.7 倍</b>。再從別的漁港搶人，能搶到的空間很小。</p>
+<div class="spine rv">
+<div class="lb2" data-en="The real rival">真正的對手</div>
+<p data-en="A Kaohsiung family's weekend: the hypermarket, the mall, camping, staying home. &lt;b&gt;And retention is something no fishing port does well. That space is empty, not crowded.&lt;/b&gt;">一個高雄家庭的週末：大賣場、百貨、露營、待在家。<b>而留存這件事，沒有任何一個漁港做得好，那是空的不是紅海。</b></p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- Data Insight POV -->
+<section class="sl" data-sec="洞察">
+<div class="kick rv auto" data-en="Method">方法</div>
+<h2 class="rv auto" data-en="From one thing we saw to the problem itself">從看到的一件事，走到問題本身</h2>
+<div class="chain">
+<div class="ch rv keep">
+<div class="en2">DATA</div>
+<div class="zh2" data-en="One fact you saw or heard">直接看到或聽到的一個事實</div>
+<div class="ex" data-en="&lt;b&gt;Twenty of thirty-four minutes went on comparing stalls&lt;/b&gt;, then he walked out and came back to buy again."><b>34 分鐘裡有 20 分鐘在比價</b>，買完走出去又回頭再買一次。</div>
+</div>
+<div class="ar2 rv keep">→</div>
+<div class="ch rv keep">
+<div class="en2">INSIGHT</div>
+<div class="zh2" data-en="The leap that means something">有意義的那一個跳躍</div>
+<div class="ex" data-en="&lt;b&gt;He is not in a hurry. He is stuck deciding.&lt;/b&gt; He does not need a faster process. He needs help deciding."><b>他不是趕時間，是卡在決定。</b>缺的不是更快的流程，是幫他決定的東西。</div>
+</div>
+<div class="ar2 rv keep">→</div>
+<div class="ch rv keep">
+<div class="en2">POINT OF VIEW</div>
+<div class="zh2" data-en="A few insights become one sentence you can act on">幾個洞察合成一句可行動的話</div>
+<div class="ex" data-en="A family visiting for the first time, wanting to take something good home, &lt;b&gt;needs a path they can see.&lt;/b&gt;">第一次來、想帶點好東西回家的家庭客，<b>需要一條看得出來該怎麼走的路。</b></div>
+</div>
+</div>
+<div class="quote rv">
+<p data-en="A point of view may not contain a solution.">POV 裡面不准出現解決方案。</p>
+<div class="who" data-en="Our first draft read “he needs a place where the information is put together”. That is a solution, not a need. Once we cut it, LINE, signage, maps and a word from the staff all became options again.">我們第一版寫「需要一個把資訊整合起來的地方」，那是解法不是需求。改掉之後，LINE、指標、地圖、店員口頭引導才重新變成可以選的東西。</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 09　HMW ═══ -->
+<section class="sl" data-sec="洞察">
+<div class="kick rv auto" data-en="So the question is">所以我們要問的是</div>
+<h2 class="rv" data-en='How might we help the Tzukuan Fisheries Association make the information a first-time visitor needs &lt;span class="g"&gt;effortless to get&lt;/span&gt;, when that information is &lt;span class="g"&gt;scattered across the site and hard to look up on the spot&lt;/span&gt;, so that both the visit and the visitor’s long-term value improve?' style="font-size:clamp(26px,3vw,44px);line-height:1.34;max-width:26ch">
+    我們可以如何幫助梓官區漁會，在遊客<span class="g">第一次前來、現場資訊分散、又不容易主動查到</span>的情況下，
+    讓他<span class="g">不必多花力氣就拿到該有的資訊</span>，把旅遊體驗與長期消費價值一起拉起來？
+  </h2>
+<p class="note rv keep" data-en="&lt;b&gt;No solution appears in it.&lt;/b&gt; Define what to solve first, and the options open up." style="margin-top:26px"><b>刻意沒有出現任何解法。</b>先定義要解什麼，解法才有得選。</p>
+<div class="pgn"></div>
+</section>
+<!-- 可複製的 -->
+<section class="sl" data-sec="解法">
+<div class="kick rv auto" data-en="Already proven elsewhere">別人已經證明過的</div>
+<h2 class="rv auto" data-en='Three things to copy. &lt;span class="g"&gt;One of them is a warning.&lt;/span&gt;'>三件事可以直接搬，<span class="g">其中一件是反面教材</span></h2>
+<div class="cards c3">
+<div class="card rv keep">
+<div class="tag" data-en="Japan　Toyosu Market">日本　豊洲市場</div>
+<div class="t" data-en="Timed auction viewing">分時段的競標見學</div>
+<div class="d" data-en="Ballot in advance, timed slots, viewers on a separate level so tourism never disturbs the work. &lt;b&gt;They already run auction viewing. What is missing is making it fixed, bookable, and known.&lt;/b&gt;">事前抽選、分時段、上下分層，讓觀光不打擾作業。<b>糶手拍賣觀摩他們已經在做，缺的是變成固定、可預約、而且客人知道它存在。</b></div>
+</div>
+<div class="card rv keep">
+<div class="tag" data-en="Taiwan　Wanggong">台灣　彰化王功</div>
+<div class="t" data-en="A festival the locals run themselves">在地自己發動的節慶</div>
+<div class="d" data-en="Run by the town itself for over twenty years. &lt;b&gt;Their seafood festival has run for twenty-five. They are ahead here. What is missing is turning that day's crowd into a lasting list.&lt;/b&gt;">由地方自己辦，撐了二十年以上。<b>海鮮節辦了二十五年，這一塊他們比王功更強，缺的是把當天的人變成長期名單。</b></div>
+</div>
+<div class="card rv keep">
+<div class="tag" data-en="Japan　Michi-no-Eki">日本　道の駅</div>
+<div class="t" data-en="Turning a stop-off into a destination">把過路變成目的地</div>
+<div class="d" data-en="Over a thousand of them nationwide, and roughly a third run at a loss. &lt;b&gt;The lesson is the reverse: build first and you lose. So this round builds nothing.&lt;/b&gt;">全國一千多處，但約三成長期赤字。<b>學到的是反面：硬體先行會虧。所以這一輪不蓋東西。</b></div>
+</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- 七條設計原則 -->
+<section class="sl" data-sec="解法">
+<div class="kick rv auto" data-en="The filter">篩選</div>
+<h2 class="rv auto" data-en="Seven principles every idea has to clear">七條原則，任何解法都要先過</h2>
+<p class="lead rv" data-en="Each one traces back to something we saw on site.">每一條都指得回現場看到的東西，不是憑感覺訂的。</p>
+<div class="prin">
+<div class="pr rv keep"><div class="n2">01</div><div class="t4" data-en="Meet him inside what he is already doing">出現在他已經在做的動作上</div></div>
+<div class="pr rv keep"><div class="n2">02</div><div class="t4" data-en="Answer only the step in front of him">一次只回答眼前這一步</div></div>
+<div class="pr rv keep"><div class="n2">03</div><div class="t4" data-en="If it changes daily, it has to be today's">會變的東西必須是今天的</div></div>
+<div class="pr rv keep"><div class="n2">04</div><div class="t4" data-en="Never quote a price, never promise on their behalf">不替攤商報價，不替漁會承諾</div></div>
+<div class="pr rv keep"><div class="n2">05</div><div class="t4" data-en="Every stage hands off to the next">每一段都要接得上下一段</div></div>
+<div class="pr rv keep"><div class="n2">06</div><div class="t4" data-en="No extra hire for the association">漁會不能因此多請一個人</div></div>
+<div class="pr rv keep"><div class="n2">07</div><div class="t4" data-en="Readable at fifty or sixty">五十到六十歲看得懂</div></div>
+<div class="pr rv keep" style="background:var(--gold);border-color:var(--gold)"><div class="n2" style="color:rgba(6,42,51,.6)" data-en="Overall">總則</div><div class="t4" data-en="Simple, lovable, complete" style="color:#062A33">簡單、討喜、完整</div></div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="How to use them">怎麼用</div>
+<p data-en="These are not ideals. They are a veto. &lt;b&gt;Twenty ideas came down to four.&lt;/b&gt; The live display board, the two-hour cold delivery, the rota guide and area-triggered push all died here, most of them because they needed more staff.">原則不是理想，是否決權。<b>二十個構想被砍到剩四條。</b>電子看板、到府冷鏈、輪值引導員、區域推播都死在這裡，多數是因為要加人力。</p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 10　解法架構 ═══ -->
+<section class="sl" data-sec="解法">
+<div class="kick rv auto" data-en="The solution">解法</div>
+<h2 class="rv auto" data-en='Join the three stages into one path, &lt;span class="g"&gt;with LINE as the thread&lt;/span&gt;'>把三段接成一條路，<span class="g">LINE 當那條線</span></h2>
+<div class="cards c3">
+<div class="card rv keep"><div class="tag" data-en="Before the visit">來之前</div><div class="t" data-en="Is it worth the trip">值不值得跑一趟</div><div class="d" data-en="What is in today, when to come, where to park">今天有什麼、幾點來、怎麼停車</div></div>
+<div class="card rv keep"><div class="tag" data-en="On site">在現場</div><div class="t" data-en="Where does the next stage go">下一段往哪走</div><div class="d" data-en="How to pick, which loop to walk, what is in each zone">怎麼挑、走哪一圈、哪一區有什麼</div></div>
+<div class="card rv keep"><div class="tag" data-en="Getting it home">帶回家</div><div class="t" data-en="How do I get it home">怎麼把東西帶走</div><div class="d" data-en="Cook-for-you, ice and vacuum, delivery and gift boxes">代客料理、寄冰真空、宅配禮盒</div></div>
+</div>
+<div class="quote rv keep" style="border-left-color:var(--gold)">
+<p data-en='Why LINE: &lt;span class="g"&gt;the account and its 4,180 friends already exist&lt;/span&gt;, they are simply not used on this path.'>為什麼是 LINE：<span class="g">帳號與四千一百八十位好友已經存在</span>，只是沒有被用在這條路上。</p>
+<div class="who" data-en="Nothing to build, and nothing extra for the visitor to download">不需要蓋東西，也不需要客人多下載一個東西</div>
+</div>
+<div class="pgn"></div>
+</section>
+
+<!-- 組內自己訂的 KPI 與加法 -->
+<section class="sl" data-sec="解法">
+  <div class="kick rv auto" data-en="Decided in the team session on Aug 9">8/9 組內收斂的結論</div>
+  <h2 class="rv auto" data-en='The number we set ourselves: <span class="g">1.5 more stops per visitor</span>'>我們自己訂的數字：<span class="g">每個人多踩 1.5 個點</span></h2>
+  <p class="lead rv" data-en="Today people buy fish and leave, or buy fish, have it cooked, and leave. Nobody walks the whole route.">現在是買完魚貨就走，或買完去代客料理就走。<b>沒有人走完全程。</b></p>
+  <div class="cards c3">
+    <div class="card rv keep">
+      <div class="tag" data-en="Motivation">動機</div>
+      <div class="t" data-en="Why he comes at all">他為什麼會來</div>
+      <div class="d" data-en="Free or limited-time events, the beach clean-up, an occasional coupon, parking information, what came in today. A small gift for adding the account.">免費或限定的活動、淨灘、偶爾一張折價券、停車資訊、今天有什麼。<b>加好友送一份小東西當誘因。</b></div>
+    </div>
+    <div class="card rv keep">
+      <div class="tag" data-en="Channel">通路</div>
+      <div class="t" data-en="How it reaches him">怎麼觸達他</div>
+      <div class="d" data-en="A QR code at each shop door, a board at the car park, a one-tap add button on the website. Printed handouts early on, because the stickiest visitors are in their fifties and sixties.">商家門口的 QR、停車場的展示牌、官網一鍵加好友。<b>初期還是要有紙本，因為黏著度最高的是五六十歲。</b></div>
+    </div>
+    <div class="card rv keep">
+      <div class="tag" data-en="Return">回訪</div>
+      <div class="t" data-en="Why he comes back">他為什麼會再來</div>
+      <div class="d" data-en="Finish the stops and you get a 30-day coupon. Share it and it becomes 60 days. The proof of finishing is a keyring, a different design each year.">走完給 30 天折價券，<b>分享出去就變 60 天</b>。完成的證明是一個鑰匙圈，每年一款。</div>
+    </div>
+  </div>
+  <div class="spine rv">
+    <div class="lb2" data-en="Why 1.5">為什麼是 1.5</div>
+    <p data-en="Not a number pulled from the air. Most people make two stops today. This adds one, plus the share who go further. <b>Small enough that a single weekend shows whether it moved.</b>">不是隨手抓的數字。<b>多數人現在只走兩段，這是加一段，再加上會多走的那一部分人。</b>小到一個假日就量得出有沒有動。</p>
+  </div>
+  <div class="pgn"></div>
+</section>
+
+<!-- IA 整合架構 -->
+<section class="sl" data-sec="解法">
+<div class="kick rv auto" data-en="What actually got connected">整合了哪些地方</div>
+<h2 class="rv auto" data-en='No new system was added. &lt;span class="g"&gt;We joined up what was already there.&lt;/span&gt;'>沒有新增任何一個系統，<span class="g">只是把已經有的接起來</span></h2>
+<div class="iawrap">
+<svg aria-label="LINE 小幫手整合架構圖" role="img" viewbox="0 0 1180 400">
+<defs>
+<marker id="ar" markerheight="7" markerwidth="7" orient="auto" refx="9" refy="5" viewbox="0 0 10 10">
+<path d="M0 0 L10 5 L0 10 z" fill="#E8B10A"></path>
+</marker>
+</defs>
+<g class="rvs" id="iaL">
+<text data-en="Already there, each on its own" fill="#E8B10A" font-size="17" font-weight="800" letter-spacing="2" x="16" y="24">已經在那裡，各自分開</text>
+<g fill="#F4F1E8" font-size="17">
+<rect fill="rgba(244,241,232,.09)" height="46" rx="10" stroke="rgba(244,241,232,.2)" width="300" x="10" y="44"></rect>
+<text data-en="Association website　seven sections" font-weight="700" x="26" y="73">漁會官網　七個單元</text>
+<rect fill="rgba(244,241,232,.09)" height="46" rx="10" stroke="rgba(244,241,232,.2)" width="300" x="10" y="100"></rect>
+<text data-en="Online store　nine categories" font-weight="700" x="26" y="129">線上漁港　九類商品</text>
+<rect fill="rgba(244,241,232,.09)" height="46" rx="10" stroke="rgba(244,241,232,.2)" width="300" x="10" y="156"></rect>
+<text data-en="LINE account　4,180 friends" font-weight="700" x="26" y="185">LINE 官方帳號　4,180 位好友</text>
+<rect fill="rgba(244,241,232,.09)" height="46" rx="10" stroke="rgba(244,241,232,.2)" width="300" x="10" y="212"></rect>
+<text data-en="The official map board at the entrance" font-weight="700" x="26" y="241">入口的官方導覽看板</text>
+<rect fill="rgba(244,241,232,.09)" height="46" rx="10" stroke="rgba(244,241,232,.2)" width="300" x="10" y="268"></rect>
+<text data-en="On-site services　ice, vacuum, delivery, cooking" font-weight="700" x="26" y="297">現場服務　寄冰真空宅配代客</text>
+<rect fill="rgba(244,241,232,.09)" height="46" rx="10" stroke="rgba(244,241,232,.2)" width="300" x="10" y="324"></rect>
+<text data-en="Six department phone lines" font-weight="700" x="26" y="353">六支部門電話</text>
+</g>
+</g>
+<g class="rvs" id="iaArrow1" marker-end="url(#ar)" stroke="#E8B10A" stroke-width="3">
+<path d="M318 67 L406 175"></path><path d="M318 123 L406 182"></path><path d="M318 179 L406 188"></path>
+<path d="M318 235 L406 196"></path><path d="M318 291 L406 203"></path><path d="M318 347 L406 210"></path>
+</g>
+<g class="rvs" id="iaM">
+<rect fill="#E8B10A" height="248" rx="18" width="330" x="416" y="76"></rect>
+<text data-en="The LINE assistant" fill="#062A33" font-size="21" font-weight="800" text-anchor="middle" x="581" y="112">LINE 小幫手</text>
+<g fill="#062A33" font-size="17" font-weight="700">
+<rect fill="rgba(6,42,51,.12)" height="52" rx="10" width="282" x="440" y="128"></rect>
+<text data-en="Routing　twenty-six ways of asking" text-anchor="middle" x="581" y="152">入口路由　二十六條問法</text>
+<text data-en="Scripted answers come first" font-size="16" font-weight="400" text-anchor="middle" x="581" y="172">先走寫死的答案</text>
+<rect fill="rgba(6,42,51,.12)" height="52" rx="10" width="282" x="440" y="188"></rect>
+<text data-en="Knowledge base　twenty-three facts" text-anchor="middle" x="581" y="212">知識庫　二十三條事實</text>
+<text data-en="Every one carries its source" font-size="16" font-weight="400" text-anchor="middle" x="581" y="232">每一條都標來源</text>
+<rect fill="rgba(6,42,51,.12)" height="52" rx="10" width="282" x="440" y="248"></rect>
+<text data-en="Output guardrails　six red lines" text-anchor="middle" x="581" y="272">出口防線　六條紅線</text>
+<text data-en="Written in code, not in a prompt" font-size="16" font-weight="400" text-anchor="middle" x="581" y="292">寫在程式裡，不是提示詞</text>
+</g>
+</g>
+<g class="rvs" id="iaArrow2" marker-end="url(#ar)" stroke="#E8B10A" stroke-width="3">
+<path d="M754 130 L852 92"></path><path d="M754 200 L852 200"></path><path d="M754 270 L852 308"></path>
+</g>
+<g class="rvs" fill="#F4F1E8" font-size="17" id="iaR">
+<text data-en="What the visitor ends up holding" fill="#E8B10A" font-size="17" font-weight="800" letter-spacing="2" x="862" y="24">客人手上拿到的</text>
+<rect fill="rgba(244,241,232,.12)" height="80" rx="12" stroke="rgba(244,241,232,.28)" width="308" x="860" y="52"></rect>
+<text data-en="Before the visit" font-weight="800" x="880" y="80">來之前</text>
+<text data-en="What is in today, how to get here, when to come" fill="#B9CDD3" font-size="16" x="880" y="106">今天有什麼、怎麼到、幾點來</text>
+<rect fill="rgba(244,241,232,.12)" height="80" rx="12" stroke="rgba(244,241,232,.28)" width="308" x="860" y="160"></rect>
+<text data-en="On site" font-weight="800" x="880" y="188">在現場</text>
+<text data-en="How to pick, which loop to walk, what is in each zone" fill="#B9CDD3" font-size="16" x="880" y="214">怎麼挑、走哪一圈、哪一區有什麼</text>
+<rect fill="rgba(244,241,232,.12)" height="80" rx="12" stroke="rgba(244,241,232,.28)" width="308" x="860" y="268"></rect>
+<text data-en="Getting it home" font-weight="800" x="880" y="296">帶回家</text>
+<text data-en="Cook-for-you, ice and vacuum, delivery and gift boxes" fill="#B9CDD3" font-size="16" x="880" y="322">代客料理、寄冰真空、宅配禮盒</text>
+</g>
+</svg>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="What integration means here">整合的定義</div>
+<p data-en="All six on the left are theirs already. &lt;b&gt;We did not build a twelfth entrance. We built the middle layer, and turned six scattered things into one path that answers.&lt;/b&gt;">左邊六樣全部是他們本來就有的。<b>我們沒有做第十二個入口，只做了中間那一層，把散在六個地方的東西變成一條回答得出來的路。</b></p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 11　掃碼加好友＋圖文選單 ═══ -->
+<section class="sl" data-sec="做出來了">
+<div class="kick rv auto" data-en="Already live">已經上線</div>
+<h2 class="rv auto" data-en='Scan it now. &lt;span class="g"&gt;One minute and you can try it yourself.&lt;/span&gt;'>現在拿手機掃，<span class="g">一分鐘就能自己試</span></h2>
+<div class="split">
+<div class="qrside">
+<div class="qrbox rv keep"><img alt="加入 LINE 好友 QR code" src="oa_img/qr-line.png"/></div>
+<div class="qrtxt rv keep">
+<div class="big2" data-en="Scan and you get&lt;br/&gt;what came in today">掃了就會收到<br/>今天有什麼</div>
+<div class="sub2" data-en="Tap the six cells below,&lt;br/&gt;or just type a question.">下面的六格選單直接點，<br/>或打字問它。</div>
+<div class="id">@743wkhym</div>
+<div class="sub2" data-en="A test account, held by us.&lt;br/&gt;The live one belongs to the association." style="font-size:16px;margin-top:10px">測試帳號，掛在我們名下。<br/>正式帳號要開在漁會名下。</div>
+</div>
+</div>
+<div class="phone rv keep">
+<div class="scr">
+<div class="top" data-en="&lt;i&gt;&lt;/i&gt;Kezailiao"><i></i>蚵仔寮</div>
+<div class="body" style="justify-content:flex-end;padding:11px 11px 0;gap:8px">
+<div class="msg" data-en="Hello, this is Kezailiao.
+I am an AI assistant, not a person.
+
+Tap the menu below.">你好，這裡是蚵仔寮。
+我是 AI 小幫手，不是真人。
+
+下面的選單可以直接點。</div>
+<div class="menu" style="margin:9px -11px 0"><img alt="圖文選單六格" src="oa_img/richmenu.png"/></div>
+</div>
+</div>
+</div>
+</div>
+<div class="spine rv">
+<div class="lb2" data-en="How the six cells split">六格怎麼分</div>
+<p data-en="Five send a keyword to the assistant. &lt;b&gt;One goes straight to the association's own online store&lt;/b&gt;, so a buyer never has to say another word. The menu itself is free.">五格丟關鍵字給小幫手，<b>一格直接連到漁會自己的線上商店</b>，想買的人不必再多講一句話。選單本身不計費。</p>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 12　多頁訊息：停車 ═══ -->
+<section class="sl" data-sec="做出來了">
+<div class="kick rv auto" data-en="Rich messages　set one">多頁訊息　第一組</div>
+<h2 class="rv auto" data-en="Ask “where do I park”, get three maps you can tap">問「停哪裡」，拿到的是三個可以按的地圖</h2>
+<div class="split">
+<div class="phone rv keep">
+<div class="scr">
+<div class="top" data-en="&lt;i&gt;&lt;/i&gt;Kezailiao"><i></i>蚵仔寮</div>
+<div class="body">
+<div class="msg me" data-en="where do I park">停哪裡</div>
+<div class="msg" data-en="Two choices for parking:
+
+Free car park　straight past the arch
+Paid car park　NT$40 an hour at weekends
+
+Look for the blue building.
+
+Four cards below have map links.">停車兩個選擇：
+
+免費停車場　過牌坊直直開到底
+付費停車場　假日一小時 40 元
+
+認路看藍色建物。
+
+下面四張卡有地圖連結。</div>
+</div>
+<div class="bar2"><span data-en="Type anything you want to ask">想問什麼直接打字</span><i></i></div>
+</div>
+</div>
+<div>
+<div class="carou">
+<div class="cd rv keep"><img alt="直銷中心" src="oa_img/p-center.png"/><div class="b"><div class="t2" data-en="Direct Sales Centre">魚貨直銷中心</div><div class="d2" data-en="No. 32, Yugang 2nd Rd. Look for the blue building.">漁港二路 32 號，認路看藍色建物。</div><div class="btn" data-en="Open in Google Maps">用 Google 地圖導航</div></div></div>
+<div class="cd rv keep"><img alt="免費停車場" src="oa_img/p-free.png"/><div class="b"><div class="t2" data-en="Free car park">免費停車場</div><div class="d2" data-en="Coaches fit too. Five to ten minutes on foot.">遊覽車也停得下，走進來 5 到 10 分鐘。</div><div class="btn" data-en="Find it on the map">在地圖上找</div></div></div>
+<div class="cd rv keep"><img alt="付費停車場" src="oa_img/p-paid.png"/><div class="b"><div class="t2" data-en="Paid car park">付費停車場</div><div class="d2" data-en="Closer. NT$150 a day at most.">比較近，一天上限 150 元。</div><div class="btn" data-en="Find it on the map">在地圖上找</div></div></div>
+</div>
+<p class="note rv keep" data-en="&lt;b&gt;A plain text link and a full set of cards with images and buttons cost exactly the same quota.&lt;/b&gt; So we always send cards."><b>一則純文字連結，跟一整組帶圖帶按鈕的卡片，扣掉的訊息額度一模一樣。</b>所以我們一律用多頁訊息。</p>
+</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 13　動線 ═══ -->
+<section class="sl" data-sec="做出來了">
+<div class="kick rv auto" data-en="Rich messages　set two">多頁訊息　第二組</div>
+<h2 class="rv auto" data-en="One image answers “so which way do I go”">一張圖回答「我到底該怎麼走」</h2>
+<div class="split">
+<div class="shot rv keep" style="max-width:min(52vw,720px)"><img alt="動線示意圖" src="oa_img/map-loop.png" style="height:auto"/></div>
+<div>
+<div class="pts">
+<div class="pt rv keep"><div class="no solid">40</div><div data-en="&lt;b&gt;Short loop, forty minutes&lt;/b&gt;　01 parking, 02 fresh fish, 05 hot food, 06 gift shop. Buy one thing, eat one thing, take one thing."><b>小圈四十分鐘</b>　01 停車、02 生食區、05 熟食區、06 門市部。買一樣、吃一樣、帶一樣。</div></div>
+<div class="pt rv keep"><div class="no">90</div><div data-en="&lt;b&gt;Long loop, ninety minutes&lt;/b&gt;　adds 03 auction viewing and 04 cook-for-you. &lt;b&gt;Only this loop finishes the route.&lt;/b&gt;"><b>大圈九十分鐘</b>　多走 03 拍賣看台與 04 代客料理。<b>這一圈才走得完全程。</b></div></div>
+</div>
+<p class="note rv keep" data-en="Numbers 01 to 06 run through everything: the assistant's replies, the stamp stops, the operations sheet. &lt;b&gt;There is never a second set.&lt;/b&gt;">編號 01 到 06 是全套通用的：小幫手的回覆、集章站點、後台操作單都用同一組號碼。<b>不會有兩套。</b></p>
+</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 14　官網與帶回家 ═══ -->
+<section class="sl" data-sec="做出來了">
+<div class="kick rv auto" data-en="Rich messages　sets three and four">多頁訊息　第三與第四組</div>
+<h2 class="rv auto" data-en="What used to take three taps to find is now one button">把原本要找三層的東西，變成一顆按鈕</h2>
+<div class="carou" style="flex-wrap:wrap">
+<div class="cd rv keep"><img alt="產品總覽" src="oa_img/w-product.png"/><div class="b"><div class="t2" data-en="Products">產品總覽</div><div class="d2" data-en="Mullet roe and processed goods.">烏魚子與加工品。</div><div class="btn" data-en="See products">看官網產品</div><div class="btn" data-en="Buy online">線上直接買</div></div></div>
+<div class="cd rv keep"><img alt="導覽活動" src="oa_img/w-tour.png"/><div class="b"><div class="t2" data-en="Tours and classes">導覽活動</div><div class="d2" data-en="Seafood education and site visits.">食魚教育與參訪。</div><div class="btn" data-en="Read the details">看官網說明</div><div class="btn" data-en="Call Outreach">打給推廣部</div></div></div>
+<div class="cd rv keep"><img alt="代客料理" src="oa_img/b-4.png"/><div class="b"><div class="t2" data-en="Cook-for-you">代客料理</div><div class="d2" data-en="Take what you bought and they cook it.">買好的拿過去請店家煮。</div><div class="btn" data-en="How it works">怎麼運作</div></div></div>
+<div class="cd rv keep"><img alt="門市部" src="oa_img/b-6.png"/><div class="b"><div class="t2" data-en="Ice-holding and delivery">寄冰與宅配</div><div class="d2" data-en="Collect it after you browse, or ship it home.">逛完再拿，或直接寄到家。</div><div class="btn" data-en="How to keep it">怎麼保存</div></div></div>
+</div>
+<h3 class="rv" data-en='Six sets, twenty-four cards. &lt;span class="g"&gt;Every card has a next step on it.&lt;/span&gt;' style="margin-top:24px">六組多頁訊息，二十四張卡。<span class="g">每一張都有下一步可以按。</span></h3>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 15　AI 身分與防線 ═══ -->
+<section class="sl" data-sec="做出來了">
+<div class="kick rv auto" data-en="It carries their name, so">掛的是漁會的名字，所以</div>
+<h2 class="rv auto" data-en="It says it is an AI, and it leaves a way through to a person">它會講明自己是 AI，也留了一條走得到真人的路</h2>
+<div class="split">
+<div class="phone rv keep">
+<div class="scr">
+<div class="top" data-en="&lt;i&gt;&lt;/i&gt;Kezailiao"><i></i>蚵仔寮</div>
+<div class="body">
+<div class="msg" data-en="Hello, this is Kezailiao.
+I am an AI assistant, not a person.">你好，這裡是蚵仔寮。
+我是 AI 小幫手，不是真人。</div>
+<div class="msg me" data-en="talk to a person">真人回覆</div>
+<div class="msg" data-en="Alright, I will stay quiet and hand over.
+
+The association sets the staffed hours.
+Type “auto reply” to bring me back.">好，我先安靜下來，換真人接手。
+
+真人服務時間會由漁會自己填。
+想叫我回來，打「自動回覆」。</div>
+</div>
+<div class="bar2"><span data-en="Type anything you want to ask">想問什麼直接打字</span><i></i></div>
+</div>
+</div>
+<div>
+<h3 class="rv keep" data-en="Six things it will never say">它不會說的六句話</h3>
+<div class="pts" style="gap:10px">
+<div class="pt rv keep" style="font-size:clamp(16px,1.2vw,20px)"><div class="no">1</div><div data-en="No prices. Over a hundred stalls set their own. Quoting for them means answering for them.">不報任何價格。一百多攤各自定價，替他們報就是替他們擔責任。</div></div>
+<div class="pt rv keep" style="font-size:clamp(16px,1.2vw,20px)"><div class="no">2</div><div data-en="No promise that any item is in today.">不承諾今天一定有什麼貨。</div></div>
+<div class="pt rv keep" style="font-size:clamp(16px,1.2vw,20px)"><div class="no">3</div><div data-en="Never “the association has decided”. It is not a spokesperson.">不說「本會決定」，它不是發言人。</div></div>
+<div class="pt rv keep" style="font-size:clamp(16px,1.2vw,20px)"><div class="no">4</div><div data-en="No phone number or link that was not verified.">不給查證過以外的電話與連結。</div></div>
+<div class="pt rv keep" style="font-size:clamp(16px,1.2vw,20px)"><div class="no">5</div><div data-en="If today's catch is more than three days old it stops offering it and asks you to call.">今日漁獲超過三天沒更新就停止提供，改請客人打電話。</div></div>
+<div class="pt rv keep" style="font-size:clamp(16px,1.2vw,20px)"><div class="no">6</div><div data-en="If it does not know, it says so.">答不出來就說答不出來。</div></div>
+</div>
+<p class="note rv keep" data-en="These six live in the code, not in a prompt. &lt;b&gt;Every change reruns the checks automatically.&lt;/b&gt;">這六條寫在程式裡，不是寫在提示詞裡。<b>每次修改都會自動重跑一次檢查。</b></p>
+</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- 螢幕錄影 -->
+<section class="sl" data-sec="做出來了">
+<div class="kick rv auto" data-en="Recorded on site">現場實錄</div>
+<h2 class="rv auto" data-en='Not a mock-up. &lt;span class="g"&gt;A real phone, asking it real questions.&lt;/span&gt;'>不是模擬畫面，<span class="g">是真的用手機打開來問</span></h2>
+<div class="split">
+<div class="phone big rv keep">
+<div class="scr">
+<video id="demoVid" loop="" muted="" playsinline="" preload="metadata" src="oa_img/demo.mp4"></video>
+<div class="vph" id="vph">
+<div class="ic"></div>
+<div class="t3" data-en="Screen recording goes here">螢幕錄影放這裡</div>
+<div class="d3" data-en="Save the clip as&lt;br/&gt;&lt;code&gt;04_產出/oa_img/demo.mp4&lt;/code&gt;&lt;br/&gt;and reload to play it">把手機錄影存成<br/><code>04_產出/oa_img/demo.mp4</code><br/>重新整理就會自動播放</div>
+</div>
+</div>
+</div>
+<div>
+<h3 class="rv keep" data-en="Four things you will see in the clip">錄影裡會看到的四件事</h3>
+<div class="pts" style="gap:12px">
+<div class="pt rv keep"><div class="no">1</div><div data-en="Tap “how do I get there” on the menu and four cards with map buttons appear.">點圖文選單的「怎麼到」，跳出四張帶地圖按鈕的卡。</div></div>
+<div class="pt rv keep"><div class="no">2</div><div data-en="Type “route” and the short and long loops come back as an image.">打「動線」，拿到小圈與大圈的示意圖。</div></div>
+<div class="pt rv keep"><div class="no">3</div><div data-en="Type “how much” and it &lt;b&gt;does not quote&lt;/b&gt;. It explains why, and points at the public scales.">打「多少錢」，它<b>不報價</b>，而是說明為什麼不報，並告訴你現場有公秤。</div></div>
+<div class="pt rv keep"><div class="no">4</div><div data-en="Type “talk to a person” and it goes quiet so someone can take over.">打「真人回覆」，它安靜下來，換人接手。</div></div>
+</div>
+<p class="note rv keep" data-en="@743wkhym is a test account held by us. &lt;b&gt;The live account belongs to the association, and they keep the keys.&lt;/b&gt;">帳號 @743wkhym 是測試帳號，掛在我們名下。<b>正式帳號要開在漁會名下，金鑰由他們保管。</b></p>
+</div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 16　怎麼算成功 ═══ -->
+<section class="sl" data-sec="怎麼算成功">
+<div class="kick rv auto" data-en="How we will know it worked">怎麼知道有沒有用</div>
+<h2 class="rv auto" data-en='No pass mark. &lt;span class="g"&gt;Only whether it beats the control group.&lt;/span&gt;'>不設及格分數，<span class="g">看的是有沒有比對照組好</span></h2>
+<p class="lead rv" data-en="There is no public benchmark from a comparable port. An absolute target would just be self-congratulation. &lt;b&gt;So we measure people who did not use it at the same time, and compare.&lt;/b&gt;">沒有同類漁港的公開基準可以對。訂一個絕對數字只會變成自我安慰。<b>所以我們同時量沒用過的人，兩邊比。</b></p>
+<table>
+<tr><th data-en="Horizon">層</th><th data-en="What to watch">看什麼</th><th data-en="How soon">多快看得到</th></tr>
+<tr class="rv keep"><td class="k" data-en="Same day">當天</td><td data-en="How many actually used the entry point, how many turns it takes to get an answer, which questions come up most">有多少人真的用了入口、問到答案要來回幾次、哪幾個問題最常被問</td><td class="hi" data-en="Same day">當天</td></tr>
+<tr class="rv keep"><td class="k" data-en="One weekend">一個假日</td><td data-en="How far users get down the path, against people who did not use it">用過的人走到下一段的比例，跟沒用過的人比</td><td class="hi" data-en="One day">一天</td></tr>
+<tr class="rv keep"><td class="k" data-en="One month">一個月</td><td data-en="Gift shop receipts against the same slot in a normal week, seven-day return rate, block rate">門市部單據筆數跟平常同時段比、七天內回訪比例、封鎖率</td><td class="hi" data-en="Four weeks">四週</td></tr>
+</table>
+<p class="note rv keep" data-en="&lt;b&gt;When we would tell you to stop:&lt;/b&gt; nobody uses the entry point, choosing does not get faster, or the association spends more than five minutes a day on it. &lt;b&gt;Any one of those and we hand over what we learned and leave nothing behind in your name.&lt;/b&gt;"><b>什麼情況我們會建議停：</b>沒有人用那個入口、客人挑東西的時間沒有變短、或者漁會每天要花超過五分鐘維護。<b>三者任一成立，我們把觀察整理好交還，不留東西在你們名下。</b></p>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 17　需要什麼 ═══ -->
+<section class="sl" data-sec="需要什麼">
+<div class="kick rv auto" data-en="To take this further">要往下推進</div>
+<h2 class="rv auto" data-en='What we need is not budget. &lt;span class="g"&gt;It is one person.&lt;/span&gt;'>我們需要的不是預算，<span class="g">是一個人</span></h2>
+<div class="cards c3">
+<div class="card solid rv keep"><div class="tag" data-en="The one that matters">最關鍵</div><div class="t" data-en="One owner">一位主人</div><div class="d" data-en="The path crosses three departments. Someone has to own the whole stretch, not just LINE.">這條路橫跨三個部門，需要有人被指定負責整段，而不是只負責 LINE。</div></div>
+<div class="card rv keep"><div class="tag" data-en="Daily">每天</div><div class="t" data-en="Five minutes">五分鐘</div><div class="d" data-en="One colleague updates the three fields for today's catch. Nothing else needs maintaining.">一位同仁更新今日漁獲那三個欄位。其餘全部不用維護。</div></div>
+<div class="card rv keep"><div class="tag" data-en="Once">一次</div><div class="t" data-en="Four hours">四小時</div><div class="d" data-en="One weekend at the gift shop door to take a baseline. Without it, nobody can say later whether it improved.">一個假日讓我們站在門市部門口量基準線。沒有基準線，之後說不清有沒有變好。</div></div>
+</div>
+<div class="cards c4" style="margin-top:18px">
+<div class="card rv keep"><div class="d" data-en="&lt;b&gt;No budget&lt;/b&gt;&lt;br/&gt;This version starts at zero"><b>不要預算</b><br/>這一版零元起步</div></div>
+<div class="card rv keep"><div class="d" data-en="&lt;b&gt;Nothing built&lt;/b&gt;&lt;br/&gt;No hardware, no layout changes"><b>不要蓋東西</b><br/>不動硬體與動線</div></div>
+<div class="card rv keep"><div class="d" data-en="&lt;b&gt;No extra hires&lt;/b&gt;&lt;br/&gt;Anything needing staff was cut first"><b>不要多請人</b><br/>要加人力的設計已先砍掉</div></div>
+<div class="card rv keep"><div class="d" data-en="&lt;b&gt;No keys&lt;/b&gt;&lt;br/&gt;The live account sits with the association"><b>不要金鑰</b><br/>正式帳號開在漁會名下</div></div>
+</div>
+<div class="pgn"></div>
+</section>
+<!-- ═══ 18　收尾 ═══ -->
+<section class="sl photo" data-sec="需要什麼">
+<div class="full"><img alt="生食區走道" src="oa_img/ph-aisle-empty.jpg"/></div>
+<div class="onpic">
+<div class="kick rv auto" data-en="One last thing">最後一件事</div>
+<h1 class="rv auto" data-en='6.6 million people already come.&lt;br/&gt;&lt;span class="g"&gt;What is missing is someone telling them the next step&lt;/span&gt;' style="font-size:clamp(32px,4.4vw,68px)">六百六十萬人已經來了<br/><span class="g">現在缺的是有人告訴他下一步</span></h1>
+<p class="lead rv" data-en="Name one person to own the whole stretch. Everything else can start today." style="font-size:clamp(19px,1.6vw,26px);color:var(--cream)">
+      指定一個人負責這一整段，其餘的今天就能開始。</p>
+</div>
+<div class="pgn"></div>
+</section>
+</div>
+<div id="langBtn"><button data-l="zh" class="on">CH</button><button data-l="en">EN</button></div>
+<div class="hud">
+<div class="sec" id="secLabel">痛點</div>
+<div class="dots" id="dots"></div>
+<div class="nav">
+<button aria-label="上一頁" id="btn-prev">‹</button>
+<button aria-label="下一步" id="btn-next">›</button>
+</div>
+</div>
+<script>
+const SEC_EN={"痛點":"THE PROBLEM","洞察":"THE CASE","解法":"THE SOLUTION","做出來了":"WHAT WE BUILT","怎麼算成功":"HOW WE MEASURE","需要什麼":"WHAT WE NEED"};
+const deck=document.getElementById('deck');
+const slides=[...document.querySelectorAll('.sl')];
+slides.forEach((s,i)=>{
+  s.dataset.index=i;
+  const n=s.querySelector('.pgn');
+  if(n) n.textContent=String(i+1).padStart(2,'0');   // 零補位，插頁不用手改
+});
+let cur=0;
+
+/* 進度點與章節名 */
+const dots=document.getElementById('dots');
+dots.innerHTML=slides.map(()=>'<i></i>').join('');
+const dotEls=[...dots.children];
+function updateUI(){
+  dotEls.forEach((d,i)=>d.classList.toggle('on',i<=cur));
+  const en=document.documentElement.lang==='en';
+  document.getElementById('secLabel').textContent=
+    en ? (SEC_EN[slides[cur].dataset.sec]||'') : (slides[cur].dataset.sec||'');
+}
+
+function goto(i){
+  i=Math.max(0,Math.min(i,slides.length-1));
+  slides[i].scrollIntoView({behavior:'smooth',block:'start'});
+  cur=i;updateUI();
+}
+
+/* 揭示一個元素：把同一頁先前揭示過的都淡化下去，做到一次只有一個重點 */
+function reveal(el){
+  const slide=el.closest('.sl');
+  slide.querySelectorAll('.rv.on').forEach(o=>{ if(o!==el) o.classList.add('past'); });
+  el.classList.add('on');
+  el.classList.remove('past');
+}
+
+/* 全站唯一的推進判定。按鈕、方向鍵、滾輪都走這裡，不另外攔截 */
+function findNextRevealable(){
+  const slide=slides[cur];
+  if(!slide) return null;
+  const next=slide.querySelector('.rv:not(.on)');
+  if(next) return {click(){ reveal(next); }};
+  return null;
+}
+function advance(){
+  const t=findNextRevealable();
+  if(t) t.click(); else goto(cur+1);
+}
+
+document.getElementById('btn-next').addEventListener('click',advance);
+document.getElementById('btn-prev').addEventListener('click',()=>goto(cur-1));
+
+document.addEventListener('keydown',e=>{
+  if(['ArrowDown','ArrowRight',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();advance();}
+  else if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();goto(cur-1);}
+  else if(e.key==='Home'){e.preventDefault();goto(0);}
+  else if(e.key==='End'){e.preventDefault();goto(slides.length-1);}
+});
+
+let lock=false;
+deck.addEventListener('wheel',e=>{
+  if(lock) return; lock=true;
+  if(e.deltaY>0) advance(); else goto(cur-1);
+  setTimeout(()=>lock=false,620);
+},{passive:true});
+
+let ty=0;
+deck.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;},{passive:true});
+deck.addEventListener('touchend',e=>{
+  const dy=ty-e.changedTouches[0].clientY;
+  if(Math.abs(dy)>46){ dy>0?advance():goto(cur-1); }
+},{passive:true});
+
+/* 進到一頁就自動揭示標題那幾行，其餘等操作 */
+const io=new IntersectionObserver(es=>{
+  es.forEach(en=>{
+    const i=+en.target.dataset.index;
+    if(en.isIntersecting){
+      en.target.classList.add('is-on');
+      cur=i;updateUI();
+      en.target.querySelectorAll('.rv.auto:not(.on)').forEach((el,k)=>{
+        setTimeout(()=>el.classList.add('on'),90+k*130);
+      });
+    }else{
+      en.target.classList.remove('is-on');
+    }
+  });
+},{threshold:.55});
+slides.forEach(s=>io.observe(s));
+updateUI();
+
+/* 中英切換。整份簡報一鍵換，選擇記在這台電腦 */
+(function(){
+  const NODES=[...document.querySelectorAll('[data-en]')];
+  NODES.forEach(el=>el.dataset.zhHtml=el.innerHTML);
+  const btns=[...document.querySelectorAll('#langBtn button')];
+  function setLang(l){
+    document.documentElement.lang = (l==='en') ? 'en' : 'zh-Hant';
+    NODES.forEach(el=>{ el.innerHTML = (l==='en') ? el.dataset.en : el.dataset.zhHtml; });
+    btns.forEach(b=>b.classList.toggle('on', b.dataset.l===l));
+    document.getElementById('secLabel').textContent =
+      (l==='en') ? (SEC_EN[slides[cur].dataset.sec]||'') : (slides[cur].dataset.sec||'');
+    try{localStorage.setItem('d4t_deck_lang',l)}catch(e){}
+  }
+  window.setDeckLang=setLang;
+  btns.forEach(b=>b.onclick=()=>setLang(b.dataset.l));
+  try{ if(localStorage.getItem('d4t_deck_lang')==='en') setLang('en'); }catch(e){}
+})();
+
+/* 螢幕錄影：檔案還沒放進來就顯示提示，放進來就自動播 */
+(function(){
+  const v=document.getElementById('demoVid'), ph=document.getElementById('vph');
+  if(!v) return;
+  const miss=()=>{ v.style.display='none'; ph.style.display='flex'; };
+  const ok=()=>{ ph.style.display='none'; v.setAttribute('controls',''); };
+  v.addEventListener('error',miss);
+  v.addEventListener('loadedmetadata',()=>{ (v.videoWidth?ok():miss()); });
+  setTimeout(()=>{ if(!v.videoWidth) miss(); },1500);
+  /* 進到這一頁自動播，離開就暫停 */
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(!v.videoWidth) return;
+    e.isIntersecting ? v.play().catch(()=>{}) : v.pause();
+  }),{threshold:.6}).observe(v.closest('.sl'));
+})();
+</script>
+</body></html>

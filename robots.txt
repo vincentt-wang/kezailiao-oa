@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /d-8f3a2c7b/
+Disallow: /map.html
