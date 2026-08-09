@@ -25,7 +25,7 @@
 html,body{margin:0;padding:0}
 body{
   background:var(--bg);color:var(--ink);
-  font:400 17px/1.68 -apple-system,"PingFang TC","Noto Sans TC","Helvetica Neue",sans-serif;
+  font:400 18.5px/1.66 -apple-system,"PingFang TC","Noto Sans TC","Helvetica Neue",sans-serif;
   padding-bottom:calc(var(--nav-h) + var(--safe-b));
   overscroll-behavior-y:none;-webkit-text-size-adjust:100%;
 }
@@ -48,25 +48,25 @@ main{max-width:640px;margin:0 auto;padding:14px 13px 26px}
 .pane.on{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-.h1{font-size:23px;font-weight:800;margin:4px 0 3px;letter-spacing:.01em}
-.lead{font-size:15.5px;color:var(--ink-2);margin:0 0 15px;line-height:1.62}
+.h1{font-size:27px;font-weight:800;margin:4px 0 3px;letter-spacing:.01em}
+.lead{font-size:17px;color:var(--ink-2);margin:0 0 15px;line-height:1.62}
 
 .card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
   padding:15px;margin:0 0 12px}
-.card h3{margin:0 0 7px;font-size:17.5px;font-weight:800}
-.card p{margin:0 0 9px;font-size:15.5px;line-height:1.66;color:var(--ink-2)}
+.card h3{margin:0 0 8px;font-size:19.5px;font-weight:800}
+.card p{margin:0 0 10px;font-size:17px;line-height:1.66;color:var(--ink-2)}
 .card p:last-child{margin-bottom:0}
 .card b{color:var(--ink);font-weight:700}
 
-.kicker{font-size:12.5px;font-weight:800;letter-spacing:.16em;color:var(--ink-3);margin:22px 0 8px}
-.note{font-size:13.5px;line-height:1.6;color:var(--ink-2);background:#FBF7E9;
+.kicker{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--ink-3);margin:22px 0 8px}
+.note{font-size:15px;line-height:1.6;color:var(--ink-2);background:#FBF7E9;
   border:1px solid #EFE2BE;border-left:3px solid var(--gold);border-radius:10px;
   padding:10px 12px;margin:10px 0 0}
 .note.grey{background:#F4F6F6;border-color:var(--bd);border-left-color:var(--ink-3)}
-.src{font-size:12.5px;color:var(--ink-3);margin-top:9px;line-height:1.55}
+.src{font-size:13.5px;color:var(--ink-3);margin-top:9px;line-height:1.55}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:11px 15px;border-radius:11px;font-size:15px;font-weight:700;
+  padding:12px 16px;border-radius:11px;font-size:16.5px;font-weight:700;
   background:var(--sea);color:#fff;text-decoration:none}
 .btn.gh{background:#fff;color:var(--sea);border:1.5px solid var(--sea)}
 .btn.ln{background:var(--line);color:#fff}
@@ -81,14 +81,14 @@ main{max-width:640px;margin:0 auto;padding:14px 13px 26px}
   border-radius:var(--r);padding:17px 16px 16px;margin:0 0 12px;
 }
 .quest .eye{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--gold)}
-.quest h2{margin:6px 0 7px;font-size:21px;font-weight:800;line-height:1.42}
-.quest p{margin:0;font-size:15px;line-height:1.65;color:rgba(255,255,255,.82)}
+.quest h2{margin:7px 0 8px;font-size:24px;font-weight:800;line-height:1.42}
+.quest p{margin:0;font-size:16.5px;line-height:1.65;color:rgba(255,255,255,.82)}
 .quest .row{display:flex;gap:9px;margin-top:13px}
 .quest .row div{
-  flex:1;background:rgba(255,255,255,.1);border-radius:11px;padding:9px 10px;
-  font-size:13px;line-height:1.45;color:rgba(255,255,255,.8);
+  flex:1;background:rgba(255,255,255,.1);border-radius:11px;padding:10px;
+  font-size:14px;line-height:1.45;color:rgba(255,255,255,.8);
 }
-.quest .row b{display:block;font-size:16.5px;font-weight:800;color:#fff;margin-bottom:2px}
+.quest .row b{display:block;font-size:19px;font-weight:800;color:#fff;margin-bottom:2px}
 
 /* ── 地圖 ─────────────────────────────── */
 .mapwrap{position:relative;background:#EAF1F0;border:1px solid var(--bd);
@@ -101,40 +101,40 @@ main{max-width:640px;margin:0 auto;padding:14px 13px 26px}
 .hint{position:absolute;left:9px;bottom:9px;z-index:5;background:rgba(255,255,255,.9);
   border-radius:8px;padding:5px 9px;font-size:12.5px;color:var(--ink-2);pointer-events:none}
 .maptabs{display:flex;gap:7px;margin:0 0 11px}
-.maptabs button{flex:1;padding:9px 4px;border-radius:10px;font-size:14.5px;font-weight:700;
+.maptabs button{flex:1;padding:10px 4px;border-radius:10px;font-size:16px;font-weight:700;
   background:#fff;border:1.5px solid var(--bd);color:var(--ink-2)}
 .maptabs button[aria-selected=true]{background:var(--sea);border-color:var(--sea);color:#fff}
 .pin{cursor:pointer}
-.legend{display:flex;flex-wrap:wrap;gap:8px 15px;font-size:13px;color:var(--ink-2);margin:0 2px 12px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 15px;font-size:14px;color:var(--ink-2);margin:0 2px 12px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 9px;margin:0 -2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;padding:8px 13px;border-radius:999px;font-size:14.5px;font-weight:700;
+.chip{flex:none;padding:9px 14px;border-radius:999px;font-size:16px;font-weight:700;
   background:#fff;border:1.5px solid var(--bd);color:var(--ink-2);white-space:nowrap}
 .chip[aria-selected=true]{background:var(--sea);border-color:var(--sea);color:#fff}
 .chip.done::after{content:"　✓";color:var(--gold-d)}
 .chip[aria-selected=true].done::after{color:var(--gold)}
 
 .det h3{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.det .no{font:800 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;color:#fff;
+.det .no{font:800 14px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;color:#fff;
   background:var(--sea);padding:5px 7px;border-radius:6px}
-.det .role{font-size:13px;font-weight:800;color:var(--gold-d);letter-spacing:.06em}
-.det .sub{font-size:14.5px;color:var(--ink-3);margin:0 0 10px}
-.dist{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--ink-2);
+.det .role{font-size:14px;font-weight:800;color:var(--gold-d);letter-spacing:.06em}
+.det .sub{font-size:16px;color:var(--ink-3);margin:0 0 10px}
+.dist{display:flex;align-items:center;gap:7px;font-size:16px;color:var(--ink-2);
   background:#F4F6F6;border-radius:9px;padding:8px 11px;margin:10px 0 0}
 .dist b{color:var(--sea);font-weight:800}
 
 /* ── 集章 ─────────────────────────────── */
 .prog{display:flex;align-items:center;gap:14px;background:var(--sea);color:#fff;
   border-radius:var(--r);padding:15px;margin:0 0 12px}
-.prog .pt{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.86)}
-.prog .pt b{display:block;font-size:18.5px;font-weight:800;color:#fff;margin-bottom:2px}
+.prog .pt{font-size:16px;line-height:1.55;color:rgba(255,255,255,.86)}
+.prog .pt b{display:block;font-size:21px;font-weight:800;color:#fff;margin-bottom:2px}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
 .stamp{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:12px 11px;
   text-align:left;position:relative}
 .stamp .n{font:800 12px/1 ui-monospace,Menlo,monospace;color:var(--ink-3);letter-spacing:.1em}
-.stamp .t{font-size:15.5px;font-weight:700;margin-top:5px;line-height:1.4}
-.stamp .s{font-size:13px;color:var(--ink-3);margin-top:3px}
+.stamp .t{font-size:17px;font-weight:700;margin-top:5px;line-height:1.4}
+.stamp .s{font-size:14px;color:var(--ink-3);margin-top:3px}
 .stamp.got{background:#F2FAF3;border-color:var(--line)}
 .stamp .mark{position:absolute;top:9px;right:9px;width:22px;height:22px;border-radius:50%;
   background:var(--line);color:#fff;font-size:13px;font-weight:800;
@@ -145,30 +145,30 @@ main{max-width:640px;margin:0 auto;padding:14px 13px 26px}
   color:var(--sea);font-weight:800;font-size:14px;display:flex;align-items:center;
   justify-content:center;border:1.5px solid var(--bd)}
 .tier.hit .num{background:var(--gold);border-color:var(--gold);color:var(--sea-d)}
-.tier .tx{font-size:15px;line-height:1.6;color:var(--ink-2)}
-.tier .tx b{display:block;color:var(--ink);font-size:15.5px}
+.tier .tx{font-size:16.5px;line-height:1.6;color:var(--ink-2)}
+.tier .tx b{display:block;color:var(--ink);font-size:17.5px}
 
 .shop{display:flex;gap:11px;align-items:center;padding:12px 0;border-top:1px solid var(--bd)}
 .shop:first-of-type{border-top:0}
 .shop .av{flex:none;width:44px;height:44px;border-radius:11px;background:var(--cream);
   color:var(--sea);font-weight:800;font-size:16px;display:flex;align-items:center;
   justify-content:center;border:1px solid var(--bd)}
-.shop .nm{font-size:16px;font-weight:700;line-height:1.4}
-.shop .mt{font-size:13.5px;color:var(--ink-3);margin-top:2px}
+.shop .nm{font-size:17.5px;font-weight:700;line-height:1.4}
+.shop .mt{font-size:15px;color:var(--ink-3);margin-top:2px}
 .shop .mt em{font-style:normal;font-weight:700;color:var(--sea)}
-.shop a{font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.shop a{font-size:15.5px;font-weight:700;text-decoration:none;white-space:nowrap}
 
 .coupon{background:#fff;border:1.5px dashed var(--bd);border-radius:13px;padding:13px 14px;margin:0 0 10px}
 .coupon .tag{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.11em;
   background:#F4F6F6;color:var(--ink-3);padding:3px 7px;border-radius:5px;margin-bottom:7px}
-.coupon .tt{font-size:16.5px;font-weight:800}
-.coupon .dd{font-size:14.5px;color:var(--ink-2);margin-top:4px;line-height:1.6}
+.coupon .tt{font-size:18.5px;font-weight:800}
+.coupon .dd{font-size:16px;color:var(--ink-2);margin-top:4px;line-height:1.6}
 
 nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;
   background:rgba(255,255,255,.97);border-top:1px solid var(--bd);
   padding-bottom:var(--safe-b);backdrop-filter:saturate(180%) blur(12px)}
 nav button{flex:1;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;
-  gap:3px;font-size:11.5px;font-weight:700;color:var(--ink-3);position:relative}
+  gap:3px;font-size:12.5px;font-weight:700;color:var(--ink-3);position:relative}
 nav button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;
   stroke-linecap:round;stroke-linejoin:round}
 nav button[aria-selected=true]{color:var(--sea)}
@@ -197,7 +197,7 @@ nav button.has .dot{display:block}
     <b>蚵仔寮　穿越尋寶之旅</b>
     <span class="demo">DEMO</span>
   </div>
-  <div class="disc">學生工作坊原型，非梓官區漁會官方發布。內容僅供演示，以現場與官方公告為準。</div>
+  <div class="disc">學生工作坊原型，非梓官區漁會官方發布</div>
 </header>
 
 <nav role="tablist">
@@ -220,7 +220,7 @@ nav button.has .dot{display:block}
   <div class="quest">
     <div class="eye">今天的任務</div>
     <h2>停車場是新手村。<br>八站走完，你就帶得走。</h2>
-    <p>六百六十萬人次走過這個漁港，多數人停留一小段就離開。這條路線把散在各處的東西串成一趟走得完的動線。</p>
+    <p>散在各處的東西，串成一條走得完的路。每一站有故事、有導航、有一個章。</p>
     <div class="row">
       <div><b>8 站</b>全程約 90 分</div>
       <div><b>4 站</b>趕時間 40 分</div>
@@ -233,37 +233,29 @@ nav button.has .dot{display:block}
   <div class="card">
     <h3>今日漁獲</h3>
     <p id="todayList">載入中</p>
-    <div class="note">漁獲每天不同，這一頁是示範資料。實際到場有什麼以攤位現場為準，我們不保證品項與數量。</div>
+    <div class="note">示範資料。實際有什麼以攤位現場為準。</div>
   </div>
 
   <div class="card">
-    <h3>幾點來比較好</h3>
-    <p><b>早上七點到下午兩點</b>是生鮮零售的主場，攤位最齊。<br>
-       <b>中午十二點</b>魚市場大樓開拍，看拍賣要抓這個時間。<br>
-       <b>早上九點以後</b>熟食攤才陸續開。</p>
-    <p>收攤看漁獲，賣完就收，沒有固定幾點關門。</p>
-    <div class="note">營業與休市時間各方說法不一致，出發前打 <a href="tel:+886-7-617-6110">07-617-6110</a> 供銷部確認最準。</div>
-    <div class="src">時段分布來源：kimshare.tw 2025 現場紀錄。拍賣時間來自現場看板。</div>
-  </div>
-
-  <div class="kicker">提醒</div>
-  <div class="card">
-    <h3>假日十一點五十之後開始排隊</h3>
-    <p>停車是這裡最大的卡點。免費停車場過牌坊直直開到底，遊覽車也停得下，走進來五到十分鐘；付費停車場比較近。<b>排隊只發生在週六日。</b></p>
-    <div class="btnrow"><button class="btn gh" data-go="map:01">看停車位置</button></div>
+    <h3>幾點來</h3>
+    <p><b>07:00 到 14:00</b>　攤位最齊<br>
+       <b>12:00</b>　魚市場大樓開拍<br>
+       <b>09:00 以後</b>　熟食攤才開</p>
+    <p>賣完就收，沒有固定關門時間。</p>
+    <div class="note">說法不一致，出發前打 <a href="tel:+886-7-617-6110">07-617-6110</a> 最準。</div>
   </div>
 
   <div class="card">
-    <h3>颱風與海上警報</h3>
-    <p>漁船不出海，拍賣通常就停，攤位也會少很多。停不停是當天現場決定的，沒有即時公告可查，<b>警報期間不要為了買魚特地跑一趟</b>。</p>
+    <h3>停車</h3>
+    <p>假日 <b>11:50</b> 之後開始排隊。免費停車場過牌坊直直開到底，走進來五到十分鐘。</p>
+    <div class="btnrow"><button class="btn gh" data-go="map:01">看位置</button></div>
   </div>
 
-  <div class="kicker">活動</div>
   <div class="card">
-    <h3>這一欄還是空的</h3>
-    <p>蚵仔寮海鮮節、烏魚季這類活動，我們沒有取得今年的官方日期，所以不寫。有確定日期之後，這裡會是第一個更新的地方。</p>
-    <div class="btnrow"><a class="btn gh" href="https://www.ktfa.com.tw/" target="_blank" rel="noopener">漁會最新消息</a></div>
+    <h3>颱風天不要來</h3>
+    <p>漁船不出海，拍賣通常就停。停不停當天才知道，沒有公告可查。</p>
   </div>
+
 </section>
 
 <!-- ══ 地圖 ══════════════════════════════ -->
@@ -385,7 +377,7 @@ nav button.has .dot{display:block}
 <!-- ══ 集章 ══════════════════════════════ -->
 <section class="pane" id="p-stamp">
   <div class="h1">尋寶集章</div>
-  <p class="lead">走到一站就蓋一個章。進度存在這支手機裡，關掉頁面不會不見。</p>
+  <p class="lead">章由店家發。每一站有一張立牌，牌子在店家手上。</p>
 
   <div class="prog">
     <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
@@ -394,74 +386,67 @@ nav button.has .dot{display:block}
               stroke-linecap="round" stroke-dasharray="182" stroke-dashoffset="182" transform="rotate(-90 36 36)"/>
       <text id="ringTx" x="36" y="42" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">0</text>
     </svg>
-    <div class="pt"><b id="progTitle">還沒開始</b><span id="progSub">從停車場出發，第一個章在那裡。</span></div>
+    <div class="pt"><b id="progTitle">還沒開始</b><span id="progSub">第一個章在停車場。</span></div>
   </div>
 
-  <div class="grid" id="stampGrid"></div>
+  <div class="card">
+    <h3>怎麼蓋</h3>
+    <p><b>一</b>　掃立牌上的 QR，自動開 LINE<br>
+       <b>二</b>　補上牌子上的四位數，送出<br>
+       <b>三</b>　章記在你的 LINE 帳號，換手機也還在</p>
+    <p>號碼每週換一次，拍照轉傳沒有用。收攤之後蓋不到章。</p>
+    <div class="btnrow"><a class="btn ln" href="https://line.me/R/ti/p/@203ycxbc" target="_blank" rel="noopener">加入好友</a></div>
+  </div>
 
-  <div class="kicker">獎勵階梯</div>
+  <div class="kicker">八站</div>
+  <div class="grid" id="stampGrid"></div>
+  <div class="note grey">下面點一下是<b>試玩</b>，只存在這支手機。真正的章要店家的立牌。</div>
+
+  <div class="kicker">換什麼</div>
   <div class="card">
     <div class="tier" data-need="3"><div class="num">3</div>
-      <div class="tx"><b>走完前半段</b>一張抽獎券，每月月底抽一次。</div></div>
+      <div class="tx"><b>三站</b>一張抽獎券</div></div>
     <div class="tier" data-need="6"><div class="num">6</div>
-      <div class="tx"><b>走到門市部</b>寄冰或真空服務的體驗折扣。</div></div>
+      <div class="tx"><b>六站</b>寄冰或真空體驗折扣</div></div>
     <div class="tier" data-need="8"><div class="num">8</div>
-      <div class="tx"><b>全部走完</b>限量徽章一枚，加三張抽獎券。</div></div>
-    <div class="note">獎勵內容是我們的提案，還沒有經過梓官區漁會核定。實際要送什麼由漁會決定，這一頁展示的是機制怎麼跑。</div>
-  </div>
-
-  <div class="kicker">怎麼兌換</div>
-  <div class="card">
-    <p>集滿之後在這裡產生一組兌換碼，拿到<b>門市部（戀戀蚵仔寮）</b>出示。門市部就是第 06 站，寄冰、真空、宅配、禮盒也都在那裡辦。</p>
-    <div class="btnrow">
-      <button class="btn gd" id="btnCode">產生兌換碼</button>
-      <button class="btn gh" id="btnReset">清除進度</button>
-    </div>
-    <div class="note" id="codeBox" hidden></div>
+      <div class="tx"><b>八站</b>限量徽章加三張抽獎券</div></div>
+    <div class="note">獎勵是我們的提案，還沒經漁會核定。</div>
+    <div class="btnrow"><button class="btn gh" id="btnReset">清除試玩進度</button></div>
   </div>
 </section>
 
 <!-- ══ 優惠 ══════════════════════════════ -->
 <section class="pane" id="p-deal">
   <div class="h1">優惠與活動</div>
-  <p class="lead">集章獎勵、抽獎、店家優惠，全部收在這一頁，不用在對話裡往上翻。</p>
+  <p class="lead">集章獎勵、抽獎、店家優惠都在這一頁。</p>
 
-  <div class="note"><b>先講清楚：梓官區漁會目前沒有發行任何優惠券，下面三張是版位示範。</b>
-    我們做的是機制與版面，實際要不要發、發什麼、發多久，由漁會決定。</div>
+  <div class="note"><b>漁會目前沒有發行任何優惠券。</b>下面三張是版位示範。</div>
 
   <div class="kicker" style="margin-top:16px">版位示範</div>
   <div class="coupon"><span class="tag">範例　尚未發行</span>
-    <div class="tt">首次加好友　寄冰服務體驗</div>
-    <div class="dd">加入好友當日於門市部出示。目的是把「買完不知道怎麼帶回家」的人推進門市部。</div></div>
+    <div class="tt">加好友　寄冰體驗一次</div>
+    <div class="dd">當日於門市部出示。</div></div>
   <div class="coupon"><span class="tag">範例　尚未發行</span>
     <div class="tt">集滿六站　真空包裝折扣</div>
-    <div class="dd">與集章綁在一起，走到最後一站才拿得到。目的是把走完全程的比例拉上來。</div></div>
+    <div class="dd">走到門市部才拿得到。</div></div>
   <div class="coupon"><span class="tag">範例　尚未發行</span>
-    <div class="tt">平日限定　代客料理折扣</div>
-    <div class="dd">只在週一到週五有效。目的是把假日人潮往平日挪一點，假日十一點五十之後停車就開始排隊。</div></div>
+    <div class="tt">平日　代客料理折扣</div>
+    <div class="dd">週一到週五有效。</div></div>
 
-  <div class="kicker">抽獎怎麼跑</div>
+  <div class="kicker">抽獎</div>
   <div class="card">
-    <p><b>一　拿券</b>　集章拿抽獎券，三站一張、八站再加三張。</p>
-    <p><b>二　登記</b>　在 LINE 上按一次登記。</p>
-    <p><b>三　開獎</b>　每月月底抽一次，中獎用 LINE 一對一通知。</p>
-    <p><b>四　兌獎</b>　到門市部出示訊息。</p>
-    <div class="note grey">一對一訊息不算群發，<b>不佔月費的訊息額度</b>。群發、Push API 與漸進式訊息才計費，輕用量方案每月 200 則。</div>
-  </div>
-
-  <div class="kicker">為什麼優惠放網頁不放對話裡</div>
-  <div class="card">
-    <p>LINE 的多頁訊息最多九頁，而且<b>記不住任何狀態</b>，每次都是全新的一張卡。集章進度、已領過哪一張券、抽獎券剩幾張，這些非得有地方記不可。</p>
-    <p>所以分工是：<b>LINE 負責推播與入口，網頁負責內容與進度</b>，兩邊用連結接起來。</p>
+    <p><b>集章拿券</b>　三站一張，八站再加三張<br>
+       <b>每月月底抽</b>　中獎用 LINE 通知<br>
+       <b>門市部兌獎</b>　出示訊息就好</p>
   </div>
 </section>
 
 <!-- ══ 攤商 ══════════════════════════════ -->
 <section class="pane" id="p-shop">
   <div class="h1">攤商</div>
-  <p class="lead">市場裡的攤位有編號，但站在現場看不到編號在哪。這一頁是攤商名冊該長什麼樣。</p>
+  <p class="lead">攤位有編號，但站在現場看不到編號在哪。</p>
 
-  <div class="note">下面的名單來自 Google 地圖上店家自己公開的資訊，<b>未經店家與漁會確認，沒有排名或推薦的意思</b>。完整名冊要由漁會提供，這一頁展示的是欄位與版面。</div>
+  <div class="note">名單來自 Google 地圖上店家自己公開的資訊，<b>未經確認，沒有推薦的意思</b>。完整名冊要由漁會提供。</div>
 
   <div class="kicker" style="margin-top:16px">生鮮攤位</div>
   <div class="card" id="shopFresh"></div>
@@ -469,16 +454,6 @@ nav button.has .dot{display:block}
   <div class="card" id="shopCook"></div>
   <div class="kicker">漁會自營</div>
   <div class="card" id="shopAssoc"></div>
-
-  <div class="kicker">一張完整的攤商名冊要有什麼</div>
-  <div class="card">
-    <p><b>攤號</b>　現場找得到人的唯一辦法。<br>
-       <b>賣什麼</b>　三個字講完，不要寫「各式海鮮」。<br>
-       <b>在哪一段</b>　入口數過來第幾攤，比經緯度有用。<br>
-       <b>怎麼聯絡</b>　電話或 LINE，有就寫，沒有就空著。<br>
-       <b>能不能宅配</b>　這一欄決定客人買多少。</p>
-    <div class="note">五個欄位，一攤填一次，之後每天只更新「今天有什麼」。<b>難的不是做系統，是誰負責填。</b></div>
-  </div>
 </section>
 
 </main>
@@ -489,40 +464,40 @@ const G = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURICom
 
 const STOPS = [
  {id:"01",x:395,y:84,pv:false,t:"停車場",role:"新手村",sub:"旅程從這裡開始",
-  d:"免費停車場過牌坊直直開到底，遊覽車也停得下，走進來五到十分鐘；付費停車場比較近。收費以現場告示為準。",
-  story:"這一站是新手村。<b>把車停好，就等於拿到入場券。</b>假日十一點五十之後開始排隊，早一點到會省下很多力氣。",
-  warn:"停車收費我們聽到兩種說法，所以不寫金額。這個點在圖上的位置是估計的。",
+  d:"免費停車場過牌坊直直開到底，遊覽車也停得下，走進來五到十分鐘。",
+  story:"把車停好就等於拿到入場券。<b>假日 11:50 之後開始排隊。</b>",
+  warn:"收費現場告示為準。這個點的位置是估計的。",
   map:G("蚵仔寮漁港 停車場"), to:{n:"生食區",m:60,w:1}},
  {id:"02",x:548,y:142,pv:true,t:"生食區",role:"第一件寶物",sub:"魚貨直銷中心，現撈漁獲攤位",
-  d:"看三件事就好：眼睛清澈不混濁、鰓是鮮紅色、攤位有沒有一直在補冰。同一種魚各攤價差通常不大，先挑到對的再問價。現場有公秤可以複秤。",
-  story:"<b>這裡叫蚵仔寮，但沒有產蚵仔。</b>清康熙年間漳泉移民在典寶溪口搭寮插竹養蚵，地名由此而來；1978 年海堤與漁港完工之後，蚵棚就沒了。要找的是現撈仔。",
+  d:"挑魚看三件事：眼睛清澈、鰓鮮紅、攤位一直在補冰。現場有公秤可以複秤。",
+  story:"<b>這裡叫蚵仔寮，但沒有產蚵仔。</b>清康熙年間移民在溪口插竹養蚵，1978 年海堤完工後蚵棚就沒了。",
   map:G("蚵仔寮魚貨直銷中心 高雄市梓官區漁港二路92號"), to:{n:"熟食區",m:40,w:1}},
  {id:"05",x:656,y:162,pv:false,t:"熟食區",role:"補給",sub:"炸物與小吃，不用等",
-  d:"生食走到底就是熟食，中間沒有牆，同一棟一條主通道。不想等代客料理就來這裡，這一段是唯一不用排隊的選項。",
-  story:"我們 8/8 跟到的那一組，<b>最後是在場域外面買了手持小吃就離開</b>，沒有走到最後一站。",
+  d:"生食走到底就是熟食，中間沒有牆。<b>這一段不用排隊。</b>",
+  story:"我們 8/8 跟到的那一組，最後在場域外面買了小吃就離開。",
   map:G("蚵仔寮觀光魚市場"), to:{n:"拍賣看台",m:130,w:2}},
  {id:"03",x:789,y:340,pv:true,t:"拍賣看台",role:"看門道",sub:"魚市場大樓，中午 12:00 開拍",
-  d:"喊價的人叫糶手，就是主持拍賣的人。出價的是承銷人，要有資格才進得去，所以一般民眾看歸看，買還是跟攤位買。",
-  story:"<b>這是整趟裡唯一看得到魚怎麼變成價格的地方。</b>當地把赤尾鯖、土魠魚、魩仔魚、烏魚叫四大金剛。",
-  warn:"二樓目前沒有對外開放。依 2025 年報導，海洋局規劃改成食魚教育空間，時程未定案。當天要上去先打 07-619-4103 問。",
+  d:"喊價的叫糶手，出價的是承銷人。一般民眾看歸看，買還是跟攤位買。",
+  story:"<b>唯一看得到魚怎麼變成價格的地方。</b>當地把赤尾鯖、土魠、魩仔魚、烏魚叫四大金剛。",
+  warn:"二樓沒有對外開放。要上去看拍賣先打 07-619-4103。",
   map:G("蚵仔寮魚市場"), to:{n:"代客料理",m:90,w:2}},
  {id:"04",x:723,y:241,pv:false,lp:"l",t:"代客料理",role:"開火",sub:"出魚市往右手邊，四間",
-  d:"買好的魚貨拿過去請店家煮，收費與作法各家自己訂，拿過去先問清楚再放。假日中午前後會等比較久。",
-  story:"<b>直銷中心二樓本來就是規劃給代客料理的位置。</b>後來沒有走成，變成回到馬路上。等餐那十五分鐘，是整趟裡唯一有空又走不遠的時間。",
+  d:"買好的魚拿過去請店家煮，收費各家自訂，先問清楚再放。假日中午等比較久。",
+  story:"等餐那十五分鐘，是整趟唯一有空又走不遠的時間。",
   map:G("蚵仔寮 代客料理"), to:{n:"門市部",m:110,w:2}},
  {id:"06",x:835,y:314,pv:true,lp:"tr",t:"門市部",role:"寶物出口",sub:"戀戀蚵仔寮，漁港二路 32 號",
-  d:"寄冰、真空、宅配、禮盒四種帶走方式都在這裡辦。買完先冰在這裡，逛完再拿。",
-  story:"<b>走到這裡才算走完。</b>寄冰、真空、宅配、禮盒四種服務全部在這一站，而它在角落。",
+  d:"寄冰、真空、宅配、禮盒都在這裡。買完先冰著，逛完再拿。",
+  story:"<b>走到這裡才算走完。</b>四種帶得走的服務全在這一站，而它在角落。",
   map:G("戀戀蚵仔寮 梓官區漁會 高雄市梓官區漁港二路32號"), to:{n:"親子館",m:550,w:7}},
  {id:"07",x:165,y:476,pv:true,lp:"t",t:"海洋漁業親子館",role:"放小孩",sub:"廣澤路 99 號",
-  d:"正式名稱是蚵子寮海洋漁業親子館，海洋局設置，由原本的漁港辦公室改建。館內有兩層樓溜滑梯與戶外遊戲場，附免費停車場。",
-  story:"<b>週三到週日 09:00 到 12:00、13:30 到 18:00，週一週二休館。</b>直線只有 186 公尺，但中間隔著港區要繞路，實際走 550 公尺、七分鐘。",
-  warn:"開放時間來自海洋局官網。是否收費官方頁面沒有寫，多篇實訪說免門票，去之前再確認一次。",
+  d:"海洋局設置，兩層樓溜滑梯與戶外遊戲場，附免費停車場。",
+  story:"<b>週三到週日開館，週一週二休。</b>直線只有 186 公尺，但要繞港區，實際走七分鐘。",
+  warn:"開放時間來自海洋局官網。是否收費未取得官方說明。",
   map:G("蚵子寮海洋漁業親子館 高雄市梓官區廣澤路99號"), to:{n:"烏魚文化館",m:null,w:null}},
  {id:"08",x:930,y:110,pv:false,lp:"l",t:"烏魚文化館",role:"最後一站",sub:"區公所列為漁業參觀點",
-  d:"梓官區公所把它列為全市第一座以烏魚為主題的文化館。開放時間與是否接受散客參觀，官方頁面沒有寫。",
-  story:"<b>冬至前後烏魚順著海流南下，梓官正在這條路線上。</b>漁民把魚卵鹽漬、壓平、日曬七到十天，做成被叫做烏金的烏魚子。冬至時節前街後巷都在曬。",
-  warn:"這一站我們沒有去過，位置是估計的。開放方式要打 07-619-4100 問推廣部。",
+  d:"區公所列為全市第一座烏魚主題文化館。開放時間官方頁面沒有寫。",
+  story:"<b>冬至前後烏魚南下，梓官正在這條路線上。</b>魚卵鹽漬壓平日曬七到十天就是烏金。",
+  warn:"這一站我們沒去過，位置是估計的。要問打 07-619-4100。",
   map:G("蚵仔寮 烏魚文化館"), to:null}
 ];
 
@@ -768,30 +743,16 @@ function renderStamps(){
   arc.setAttribute('stroke-dashoffset', String(182 - 182 * n / STOPS.length));
   document.getElementById('ringTx').textContent = n;
   const t = document.getElementById('progTitle'), sb = document.getElementById('progSub');
-  if(n === 0){ t.textContent = '還沒開始'; sb.textContent = '從停車場出發，第一個章在那裡。'; }
-  else if(n < 3){ t.textContent = `蓋了 ${n} 個章`; sb.textContent = `再 ${3 - n} 站就有第一張抽獎券。`; }
-  else if(n < 6){ t.textContent = `蓋了 ${n} 個章`; sb.textContent = `再 ${6 - n} 站走到門市部，寄冰跟真空都在那裡。`; }
-  else if(n < 8){ t.textContent = `蓋了 ${n} 個章`; sb.textContent = `剩 ${8 - n} 站就全部走完了。`; }
-  else { t.textContent = '八站全部走完'; sb.textContent = '限量徽章加三張抽獎券，到門市部兌換。'; }
+  if(n === 0){ t.textContent = '還沒開始'; sb.textContent = '第一個章在停車場。'; }
+  else if(n < 3){ t.textContent = `${n} 個章`; sb.textContent = `再 ${3 - n} 站有第一張抽獎券。`; }
+  else if(n < 6){ t.textContent = `${n} 個章`; sb.textContent = `再 ${6 - n} 站走到門市部。`; }
+  else if(n < 8){ t.textContent = `${n} 個章`; sb.textContent = `剩 ${8 - n} 站。`; }
+  else { t.textContent = '八站走完'; sb.textContent = '到門市部兌換。'; }
   document.querySelectorAll('.tier').forEach(el => el.classList.toggle('hit', n >= +el.dataset.need));
   document.querySelector('nav button[data-p=stamp]').classList.toggle('has', n >= 3);
 }
-document.getElementById('btnCode').onclick = () => {
-  const box = document.getElementById('codeBox');
-  box.hidden = false;
-  if(got.size < 3){
-    box.innerHTML = `至少要三個章才產得出兌換碼，現在有 <b>${got.size}</b> 個。`;
-    return;
-  }
-  let h = 0; for(const c of [...got].sort().join('')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  const code = 'KZL-' + got.size + '-' + h.toString(36).toUpperCase().slice(0, 5);
-  box.innerHTML = `兌換碼　<b style="font-size:19px;letter-spacing:.08em">${code}</b><br>` +
-    '到門市部（第 06 站）出示。這是原型產生的示範碼，還沒有接漁會的核銷系統。';
-  track('code', String(got.size));
-};
 document.getElementById('btnReset').onclick = () => {
   got = new Set(); save(); renderStamps(); renderChips();
-  document.getElementById('codeBox').hidden = true;
   track('reset', '');
 };
 
