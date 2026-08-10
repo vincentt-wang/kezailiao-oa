@@ -375,10 +375,11 @@ const ICONS={
  star:'<path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" fill="none" stroke="#0E5C6B" stroke-width="1.8"/>'
 };
 document.getElementById('rich').innerHTML = RICHMENU.map(m=>
- `<button onclick="ask('${m.label}')"><svg viewBox="0 0 24 24">${ICONS[m.icon]}</svg><span class="l">${m.label}</span><span class="s">${m.sub}</span></button>`
+ `<button onclick="ask('${m.label}')"><svg viewBox="0 0 24 24">${ICONS[m.icon]}</svg><span class="l">${m.label}</span><span class="s">${m.labelEn||m.sub}</span></button>`
 ).join('');
 
-const TRY=['今天有什麼','停哪裡','怎麼挑才不會被騙','買完怎麼帶回家','有沒有適合小孩的','為什麼叫蚵仔寮','幾點來人比較少','可以刷卡嗎'];
+const TRY=['今天有什麼','停哪裡','怎麼挑才不會被騙','買完怎麼帶回家','為什麼叫蚵仔寮','可以刷卡嗎',
+ 'What is in today','How do I get here','How to pick fresh fish','How do I take it home','Why is it called Kezailiao'];
 document.getElementById('chips').innerHTML = TRY.map(t=>`<button onclick="ask('${t}')">${t}</button>`).join('');
 
 document.getElementById('pushes').innerHTML = PUSHES.map(p=>
@@ -400,7 +401,8 @@ document.getElementById('gal').innerHTML = GAL.map(g=>
 ).join('');
 
 bubble(GREET,'bot');
-sys('這是原型，不是漁會官方帳號');
+bubble('You can type in English and it will answer in English.','bot');
+sys('這是原型，不是漁會官方帳號　·　Prototype, not an official account');
 </script>
 <script>
 /* 互動動線地圖 */

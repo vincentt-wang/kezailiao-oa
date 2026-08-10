@@ -223,3 +223,175 @@ const PUSHES = [
     body:"昨天買的魚，冷藏請三天內吃完，冷凍可以放久一點。\n如果當時沒帶保冷，下次可以在門市寄冰，逛完再拿。\n下回想先知道有什麼，這裡都會先說。",
     why:"接住旅程的最後一段，也把「寄冰」這個沒人知道的服務講出來。" }
 ];
+
+/* ══════════════════════════════════════════════════════════
+   English layer. 2026-08-10.
+   The assistant answers in English when the question is in English,
+   no toggle needed. Same facts, same sources, same guardrails.
+   ══════════════════════════════════════════════════════════ */
+
+const FACTS_EN = {
+  parking:
+    "Two ways to park:\n\n" +
+    "1. Free car park (large, at the back)\n" +
+    "   Drive straight past the arch to the end. Coaches fit.\n" +
+    "   Five to ten minutes on foot to the main hall.\n\n" +
+    "2. Paid car park (closer)\n" +
+    "   NT$40 an hour at weekends, NT$150 a day at most.\n\n" +
+    "Landmark: look for the blue building.\n" +
+    "At weekends, no cars or scooters in the market area 11:00 to 19:00.",
+  howToPick:
+    "Three checks, in this order, so you do not have to compare every stall:\n\n" +
+    "1. Eyes and gills first\n" +
+    "   Clear eyes, bright red gills.\n\n" +
+    "2. Then look for a stall topping up its ice\n" +
+    "   Ice going on constantly means stock turns over fast.\n\n" +
+    "3. Ask the price last\n" +
+    "   For the same fish, prices across stalls are close.\n" +
+    "   Picking first and asking after is much quicker.\n\n" +
+    "There is a public scale on site if you want your purchase reweighed.",
+  zones:
+    "The site has four parts:\n\n" +
+    "Fresh fish   over a hundred stalls of the day's catch\n" +
+    "Hot food     fried snacks and small dishes\n" +
+    "Cook-for-you four shops: Nan, Mama Zhang, Mama Liu, Yongxin\n" +
+    "Gift shop    packed gifts, mullet roe, hampers\n\n" +
+    "The auction floor is in the fish market building, bidding starts at " + TODAY.auctionTime + ".\n\n" +
+    "One thing to know: fresh and cooked areas are mixed together.\n" +
+    "With children, or if hygiene matters to you, walk a loop first.",
+  takeHome:
+    "Four ways to carry it home. Most visitors do not know about them:\n\n" +
+    "1. As it comes\n" +
+    "   Freshest, but the temperature is on you.\n\n" +
+    "2. Vacuum packing\n" +
+    "   Available at the Direct Sales Centre. Good for keeping or gifting.\n\n" +
+    "3. Ice-holding\n" +
+    "   Buy at the gift shop, leave it on ice, collect it when you are done.\n" +
+    "   Baskets can be borrowed so nothing drips.\n\n" +
+    "4. Delivery\n" +
+    "   Shipped to your home or to a friend.\n\n" +
+    "Smoothest route: browse and buy first, then settle packing and shipping\n" +
+    "at the gift shop in one go.",
+  experience:
+    "These run already, and most visitors do not know:\n\n" +
+    "- Auction viewing, watching the caller work\n" +
+    "- Rice ball making\n" +
+    "- Fish ball making\n" +
+    "- Shrimp peeling\n" +
+    "- Fish handling demonstration\n\n" +
+    "Certified for food-and-farm experience and sustainable practice.\n\n" +
+    "How to book: groups are the norm. Schools and companies call ahead\n" +
+    "to arrange a time. Weekends are harder for individuals.",
+  bestTime:
+    "When to come:\n\n" +
+    "- To see the auction, around " + TODAY.auctionTime + "\n" +
+    "- To avoid crowds, a weekday, or before 11:00 at the weekend\n" +
+    "- To talk to stallholders, around ten in the morning while they prep\n\n" +
+    "At weekends no vehicles enter 11:00 to 19:00, and that is the busiest stretch.",
+  story:
+    "The place is called Kezailiao, which means oyster shed. No oysters are farmed here.\n\n" +
+    "The name goes back to the Ming-Zheng period. A storm in 1910 washed away\n" +
+    "part of the lower village. In 1938 the Japanese navy built the Zuoying base\n" +
+    "and the oyster beds were cleared outright.\n" +
+    "Two homes lost in thirty years. Some of those who left later came back.\n\n" +
+    "The oyster racks went. They kept the name anyway.\n\n" +
+    "So do not come looking for oysters. Come for what came off the boat this morning.",
+  facility:
+    "On site:\n\n" +
+    "- Public scale, for reweighing, and a management desk if you have a question\n" +
+    "- Toilets, in the fish market building and the Direct Sales Centre\n" +
+    "- Cover overhead, but no air conditioning\n" +
+    "- Baskets to borrow, so outside purchases do not drip\n" +
+    "- Family centre, a purple building a short walk left, with street parking\n\n" +
+    "Midday in summer is genuinely hot. Coming earlier is a lot more comfortable.",
+  pay:
+    "Paying:\n\n" +
+    "- Stalls, mostly cash. For a large purchase, ask first\n" +
+    "- Gift shop, cash, credit card and LINE Pay\n" +
+    "- Online, the Kezailiao online market ships to your door\n\n" +
+    "Auction bidding is done by licensed wholesalers. Visitors buy from the stalls.",
+  festival:
+    "The Seafood Festival, first week of December, every year.\n\n" +
+    "It started in 2001 as a mullet festival and became the Seafood Festival\n" +
+    "about ten years later. This is its twenty-fifth year. Long tables of seafood on the day.\n\n" +
+    "Mullet migrate past Tzukuan every winter, with the run around the solstice."
+};
+
+const GREET_EN =
+  "Hello, this is Kezailiao.\n" +
+  "I am an AI assistant, not a person.\n\n" +
+  "Three things I can help with:\n" +
+  "- Before you come: what came in today, how to get here, when to arrive\n" +
+  "- On site: how to pick, what is in each area\n" +
+  "- Taking it home: vacuum packing, ice-holding, delivery\n\n" +
+  "Just ask, or use the menu below.";
+
+const FALLBACK_EN =
+  "I do not have a reliable answer to that one, and I will not guess.\n\n" +
+  "You can call the association directly:\n" +
+  "- Shop and sales   07-617-6110\n" +
+  "- Office and outreach   07-619-4100\n\n" +
+  "Or ask another way. I can answer what came in today, parking,\n" +
+  "how to pick, how to take it home, and how to book an experience.";
+
+const FISH_EN = {
+  "白蝦":"White shrimp", "土魠":"Spanish mackerel", "小卷":"Small squid",
+  "石斑":"Grouper", "海膽":"Sea urchin", "烏魚子":"Mullet roe"
+};
+const STATUS_EN = { "充足":"plenty", "少量":"low", "普通":"some" };
+
+function todayCardEN(){
+  const list = TODAY.catch.map(c=>{
+    const dot = c.status==="充足" ? "🟢" : (c.status==="少量" ? "🟡" : "🔴");
+    return `${dot} ${FISH_EN[c.name]||c.name}　${STATUS_EN[c.status]||c.status}`;
+  }).join("\n");
+  return `${TODAY.date}\n\nIn today:\n${list}\n\n` +
+    `Auction starts ${TODAY.auctionTime}\nExpected crowd: ${TODAY.crowdLevel==="高"?"high":"moderate"}\n` +
+    `At weekends no vehicles enter the market area 11:00 to 19:00.\n\n` +
+    `Note: demonstration data, not an official release of the association.`;
+}
+
+/* English routing. Same eleven intents, matched on English wording. */
+const ROUTES_EN = [
+  { id:"today", re:/today|what.*(in|fresh|catch)|catch|price|how much|cost/i,        fn:()=>todayCardEN() },
+  { id:"fac",   re:/toilet|restroom|bathroom|scale|weigh|shade|hot|air.?con|kid|child|family|basket|stroller/i, fn:()=>FACTS_EN.facility },
+  { id:"pay",   re:/pay|card|cash|credit|line ?pay|transfer/i,                       fn:()=>FACTS_EN.pay },
+  { id:"park",  re:/park|car|drive|get (there|here)|how do i (get|come)|direction|address|transport|bus|taxi/i, fn:()=>FACTS_EN.parking },
+  { id:"pick",  re:/pick|choose|select|fresh(ness)?|cheat|rip.?off|quality|how to buy/i, fn:()=>FACTS_EN.howToPick },
+  { id:"zone",  re:/map|area|zone|where is|layout|route|loop|walk|auction|cook|restaurant|eat/i, fn:()=>FACTS_EN.zones },
+  { id:"take",  re:/take (it )?home|carry|deliver|ship|vacuum|pack|ice|cool|spoil|gift|souvenir/i, fn:()=>FACTS_EN.takeHome },
+  { id:"exp",   re:/experience|tour|workshop|diy|education|activity|group|school|visit/i, fn:()=>FACTS_EN.experience },
+  { id:"fest",  re:/festival|event|december|seasonal/i,                              fn:()=>FACTS_EN.festival },
+  { id:"when",  re:/when|what time|open|close|hour|busy|crowd/i,                     fn:()=>FACTS_EN.bestTime },
+  { id:"story", re:/oyster|name|why.*called|history|story|origin/i,                  fn:()=>FACTS_EN.story },
+  { id:"hi",    re:/^(hi|hello|hey|good (morning|afternoon|evening))/i,              fn:()=>GREET_EN }
+];
+
+/* 判斷語言：有中文字就走中文，整句都是英數就走英文。
+   不用切換鈕，Manasa 直接打英文就會拿到英文。 */
+function detectLang(q){ return /[一-鿿]/.test(q) ? "zh" : (/[a-z]/i.test(q) ? "en" : "zh"); }
+
+route = function(input){
+  const q = (input||"").trim();
+  const lang = detectLang(q);
+  if(!q) return { id:"empty", text: lang==="en" ? GREET_EN : GREET, lang };
+  const table = lang==="en" ? ROUTES_EN : ROUTES;
+  for(const r of table){
+    if(r.re.test(q)){
+      let t = r.fn();
+      GUARDS.forEach(g=>{ if(g.re.test(t)) t = g.fix(t); });
+      return { id:r.id, text:t, lang };
+    }
+  }
+  return { id:"fallback", text: lang==="en" ? FALLBACK_EN : FALLBACK, lang };
+};
+
+/* 圖文選單補上英文。第二行小字直接放英文，一格兩種語言都看得到 */
+RICHMENU.forEach(m=>{
+  const EN = {
+    today:["What is in today","Before you come"], park:["How to get here","Before you come"],
+    zone:["Map and areas","On site"],            pick:["How to pick","On site"],
+    take:["Taking it home","Take home"],         exp:["Experiences","On site"]
+  }[m.key];
+  if(EN){ m.labelEn=EN[0]; m.subEn=EN[1]; }
+});
